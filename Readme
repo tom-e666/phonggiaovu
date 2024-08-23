@@ -1,0 +1,55 @@
+16/8
+class to be built:
+    Student (id, name, gender, address)
+Course (id, name, domain, faculty, studentList)
+    CourseResult (key: student, course)
+Inspector (id, name)
+    FinalExamDetail (courseID,start time, duration, first take<bool>, roomID, Inspector1, Inspector2, StudentList)
+
+
+with help from GPTs
+
+1. Class: Class
+Represents a group of students assigned to a particular course.
+
+Fields:
+classId: Unique identifier for the class (string).
+className: Name of the class (e.g., "Math 101") (string).
+students: Array of student objects (array of Student).
+lecturerId: ID of the lecturer teaching this class (string).
+schedule: Weekly schedule of the class (object).
+2. Class: Student
+Represents an individual student enrolled in a class.
+
+Fields:
+studentId: Unique identifier for the student (string).
+name: Student’s full name (string).
+age: Student’s age (number).
+classIds: Array of class IDs the student is enrolled in (array of strings).
+3. Class: Lecturer
+Represents a lecturer who is teaching one or more classes.
+
+Fields:
+lecturerId: Unique identifier for the lecturer (string).
+name: Lecturer’s full name (string).
+email: Contact information for the lecturer (string).
+classIds: Array of class IDs the lecturer is responsible for (array of strings).
+4. Class: ExamScheduler
+Handles the scheduling of final exams for various classes.
+
+Fields:
+examId: Unique identifier for the exam (string).
+classId: ID of the class the exam is for (string).
+examDate: Date and time of the exam (timestamp).
+location: Room or hall where the exam will be conducted (string).
+invigilators: Array of lecturer IDs monitoring the exam (array of strings).
+5. Class: ExamAttempt
+Stores individual exam attempts, including retakes.
+
+Fields:
+attemptId: Unique identifier for the exam attempt (string).
+examId: Reference to the final exam (string).
+studentId: Reference to the student taking the exam (string).
+score: Student's score on this attempt (number).
+isRetake: Boolean indicating whether this attempt is a retake (boolean).
+examDate: Date of the exam attempt (timestamp).
