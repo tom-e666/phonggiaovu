@@ -1,8 +1,4 @@
-'use client'
-import CustomDashBoard from "@/app/dashboard/CustomDashBoard";
-export default function page(){
-    return (
-        <>
-        <CustomDashBoard/>
-        </>)
+export default function page()
+{
+    return <div> no content, close to removed</div>
 }

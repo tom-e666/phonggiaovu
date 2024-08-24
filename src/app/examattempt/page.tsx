@@ -1,15 +1,31 @@
 'use client'
 import React, { useState } from "react";
-import { Form, Input, InputNumber, DatePicker, Switch, Popconfirm, Table, TableProps, Typography } from "antd";
+import {
+    Form,
+    Input,
+    InputNumber,
+    Switch,
+    Popconfirm,
+    Table,
+    TableProps,
+    Typography,
+    Spin,
+    Button
+} from "antd";
+import { useAuth } from "@/firebase/initFirebase";
+import Link from "next/link";
+import Title from "antd/es/typography/Title";
 
 // Define the ExamAttempt interface
 interface ExamAttempt {
-    attemptId: string;  // Unique identifier for the exam attempt
-    examScheduleId: string;  // ID of the related exam schedule
-    studentId: string;  // ID of the student
-    score: number;  // Score achieved in this attempt
-    isRetake: boolean;  // Whether this attempt is a retake
-    attemptDate: string;  // Date of this attempt in "HH:mm DD/MM/YYYY" format
+    attemptId: string;
+    examScheduleId: string;
+    studentId: string;
+    score: number;
+    isRetake: boolean;
+    attemptDate: string;
+    startTime: string;
+    endTime: string;
 }
 
 // Mock data for exam attempts
@@ -19,25 +35,30 @@ for (let i = 1; i <= 10; ++i) {
         attemptId: `Attempt_${i}_1`,
         examScheduleId: `Math_101_2024_Class01_Attempt1`,
         studentId: `Student_${i}`,
-        score: Math.floor(Math.random() * 100),  // Random score between 0-100
+        score: Math.floor(Math.random() * 100),
         isRetake: false,
-        attemptDate: `09:00 09/09/2024`,  // Example date format
+        attemptDate: `09:00 09/09/2024`,
+        startTime: `08:00 09/09/2024`,
+        endTime: `10:00 09/09/2024`,
     });
 
     mockExamAttempts.push({
         attemptId: `Attempt_${i}_2`,
         examScheduleId: `Math_101_2024_Class01_Attempt2`,
         studentId: `Student_${i}`,
-        score: Math.floor(Math.random() * 100),  // Random score between 0-100
+        score: Math.floor(Math.random() * 100),
         isRetake: true,
-        attemptDate: `09:00 16/09/2024`,  // Example date format
+        attemptDate: `09:00 16/09/2024`,
+        startTime: `08:00 16/09/2024`,
+        endTime: `10:00 16/09/2024`,
     });
 }
+
 interface EditableCellProps extends React.HTMLAttributes<HTMLElement> {
     editing: boolean;
     dataIndex: string;
     title: any;
-    inputType: 'text' | 'number' | 'boolean' | 'date';
+    inputType: 'text' | 'number' | 'boolean';
     record: ExamAttempt;
     index: number;
 }
@@ -57,8 +78,6 @@ const EditableCell: React.FC<React.PropsWithChildren<EditableCellProps>> = ({
         inputNode = <InputNumber />;
     } else if (inputType === 'boolean') {
         inputNode = <Switch defaultChecked={record[dataIndex as keyof ExamAttempt] as boolean} />;
-    } else if (inputType === 'date') {
-        inputNode = <DatePicker showTime format="HH:mm DD/MM/YYYY" />;
     } else {
         inputNode = <Input />;
     }
@@ -69,7 +88,7 @@ const EditableCell: React.FC<React.PropsWithChildren<EditableCellProps>> = ({
                 <Form.Item
                     name={dataIndex}
                     style={{ margin: 0 }}
-                    rules={[{ required: true, message: `Please Input ${title}!` }]}
+                    rules={[{ required: true, message: `Vui lòng nhập ${title}.` }]}
                 >
                     {inputNode}
                 </Form.Item>
@@ -79,7 +98,44 @@ const EditableCell: React.FC<React.PropsWithChildren<EditableCellProps>> = ({
         </td>
     );
 };
+
 export default function ExamAttemptPage() {
+    const { user, loading } = useAuth();
+
+    if (loading) {
+        return (
+            <div style={{
+                display: 'flex',
+                justifyContent: 'center',
+                alignItems: 'center',
+                height: '100vh'
+            }}>
+                <Spin size="large" />
+            </div>
+        );
+    }
+
+    if (!user) {
+        return (
+            <div style={{
+                display: 'flex',
+                flexDirection: 'column',
+                justifyContent: 'center',
+                alignItems: 'center',
+                textAlign: 'center',
+                height: '100vh',
+            }}>
+                <Title level={2} style={{ marginBottom: '24px', color: '#1677ff' }}>
+                    Truy cập bị hạn chế
+                </Title>
+                <p>Vui lòng đăng nhập để xem thông tin kỳ thi của bạn.</p>
+                <Link href="/login" passHref>
+                    <Button type="primary" size="large">Đăng nhập</Button>
+                </Link>
+            </div>
+        );
+    }
+
     const [form] = Form.useForm();
     const [data, setData] = useState(mockExamAttempts);
     const [editingID, setEditingID] = useState<string | null>(null);
@@ -107,66 +163,78 @@ export default function ExamAttemptPage() {
                 setEditingID(null);
             }
         } catch (error) {
-            console.log('There is a problem with editing rows, see examAttempt.tsx', error);
+            console.log('Có lỗi xảy ra khi chỉnh sửa các hàng, xem examAttempt.tsx', error);
         }
     };
 
-    const columns= [
+    const columns = [
         {
-            title: 'Attempt ID',
+            title: 'Mã lần thi',
             dataIndex: 'attemptId',
             width: '10%',
             editable: true,
         },
         {
-            title: 'Exam Schedule ID',
+            title: 'Mã kỳ thi',
             dataIndex: 'examScheduleId',
-            width: '25%',
-            editable: true,
-        },
-        {
-            title: 'Student ID',
-            dataIndex: 'studentId',
             width: '15%',
             editable: true,
         },
         {
-            title: 'Score',
-            dataIndex: 'score',
+            title: 'Mã sinh viên',
+            dataIndex: 'studentId',
             width: '10%',
             editable: true,
         },
         {
-            title: 'Retake',
+            title: 'Điểm số',
+            dataIndex: 'score',
+            width: '7%',
+            editable: true,
+        },
+        {
+            title: 'Thi lần 2',
             dataIndex: 'isRetake',
             width: '10%',
             editable: true,
-            render: (isRetake: boolean) => (isRetake ? 'Yes' : 'No'),
+            render: (isRetake: boolean) => (isRetake ? 'Có' : 'Không'),
         },
         {
-            title: 'Attempt Date',
+            title: 'Ngày thi',
             dataIndex: 'attemptDate',
-            width: '20%',
+            width: '10%',
             editable: true,
             render: (text: string) => text,
         },
         {
-            title: 'Operation',
+            title: 'Thời gian bắt đầu',
+            dataIndex: 'startTime',
+            width: '15%',
+            editable: true,
+        },
+        {
+            title: 'Thời gian kết thúc',
+            dataIndex: 'endTime',
+            width: '15%',
+            editable: true,
+        },
+        {
+            title: 'Hành động',
             dataIndex: 'operation',
             render: (_: any, record: ExamAttempt) => {
                 const editable = isEditing(record);
                 return editable ? (
                     <span>
                         <Typography.Link onClick={() => save(record.attemptId)} style={{ marginRight: 8 }}>
-                            Save
+                            Lưu
                         </Typography.Link>
-                        <Popconfirm title="Are you sure you want to cancel?" onConfirm={cancel}>
-                            <a>Cancel</a>
+                        <Popconfirm title="Bạn có chắc muốn hủy bỏ?" onConfirm={cancel}>
+                            <a>Hủy</a>
                         </Popconfirm>
                     </span>
                 ) : (
                     <Typography.Link disabled={editingID !== null} onClick={() => edit(record)}>
-                        Edit
+                        Chỉnh sửa
                     </Typography.Link>
                 );
             },
@@ -186,9 +254,7 @@ export default function ExamAttemptPage() {
                         ? 'number'
                         : col.dataIndex === 'isRetake'
                             ? 'boolean'
-                            : col.dataIndex === 'attemptDate'
-                                ? 'date'
-                                : 'text',
+                            : 'text',
                 dataIndex: col.dataIndex,
                 title: col.title,
                 editing: isEditing(record),

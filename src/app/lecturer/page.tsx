@@ -1,6 +1,9 @@
 'use client'
 import React, { useState } from "react";
-import { Form, Input, Popconfirm, Table, TableProps, Typography } from "antd";
+import {Button, Form, Input, Popconfirm, Spin, Table, TableProps, Typography} from "antd";
+import {useAuth} from "@/firebase/initFirebase";
+import Link from "next/link";
+import Title from "antd/es/typography/Title";
 
 interface Lecturer {
     lecturerId: string;
@@ -47,7 +50,7 @@ const EditableCell: React.FC<React.PropsWithChildren<EditableCellProps>> = ({
                     style={{ margin: 0 }}
                     rules={[{
                         required: true,
-                        message: `Please Input ${title}!`,
+                        message: `Vui lòng nhập ${title}!`,
                     }]}
                 >
                     {inputNode}
@@ -60,6 +63,29 @@ const EditableCell: React.FC<React.PropsWithChildren<EditableCellProps>> = ({
 };
 
 export default function Page() {
+    const {user,loading}= useAuth();
+    if(loading)
+    {
+        return <Spin size="large"/>
+    }
+    if(!user)
+    {
+        return (
+            <div style={{
+
+                display: 'flex',
+                flexDirection: 'column',
+                justifyContent: 'center',
+                alignItems: 'center',
+                textAlign:'center',
+            }}>
+                <Title level={2} style={{marginBottom:'24px',color:'#1677ff'}}>Vui lòng đăng nhập trước khi truy cập nội dung</Title>
+                <Link href="/login" passHref>
+                    <Button type="primary" size="large">Đăng nhập</Button>
+                </Link>
+            </div>
+        )
+    }
     const [form] = Form.useForm();
     const [data, setData] = useState(mockLecturers);
     const [editingID, setEditingID] = useState('');
@@ -93,19 +119,19 @@ export default function Page() {
                 setEditingID('');
             }
         } catch (e) {
-            console.log('There is a problem with editing rows, see lecturer.tsx', e);
+            console.log('Có vấn đề khi chỉnh sửa hàng, xem lecturer.tsx', e);
         }
     };
 
     const columns = [
         {
-            title: 'Lecturer ID',
+            title: 'Mã Giảng Viên',
             dataIndex: 'lecturerId',
             width: '20%',
             editable: true,
         },
         {
-            title: 'Name',
+            title: 'Tên',
             dataIndex: 'name',
             width: '20%',
             editable: true,
@@ -117,7 +143,7 @@ export default function Page() {
             editable: true,
         },
         {
-            title: 'Classes',
+            title: 'Lớp học',
             dataIndex: 'classes',
             width: '20%',
             editable: true,
@@ -126,17 +152,17 @@ export default function Page() {
             },
         },
         {
-            title: 'Operation',
+            title: 'Thao tác',
             dataIndex: 'operation',
             render: (_: any, record: Lecturer) => {
                 const editable = isEditing(record);
                 return editable ? (
                     <span>
                         <Typography.Link onClick={() => save(record.lecturerId)} style={{ marginRight: 8 }}>
-                            Save
+                            Lưu
                         </Typography.Link>
-                        <Popconfirm title="Are you sure you want to cancel?" onConfirm={cancel}>
-                            <a>Cancel</a>
+                        <Popconfirm title="Bạn có chắc muốn hủy?" onConfirm={cancel}>
+                            <a>Hủy</a>
                         </Popconfirm>
                     </span>
                 ) : (
@@ -144,7 +170,7 @@ export default function Page() {
                         disabled={editingID !== ''}
                         onClick={() => edit(record)}
                     >
-                        Edit
+                        Sửa
                     </Typography.Link>
                 );
             },
