@@ -1,6 +1,9 @@
 'use client'
 import React, { useState } from "react";
-import { Form, Input, DatePicker, InputNumber, Popconfirm, Table, TableProps, Typography } from "antd";
+import {Form, Input, DatePicker, InputNumber, Popconfirm, Table, TableProps, Typography, Spin, Button} from "antd";
+import {useAuth} from "@/firebase/initFirebase";
+import Link from "next/link";
+import Title from "antd/es/typography/Title";
 
 // Define the ExamScheduler interface
 interface ExamScheduler {
@@ -13,6 +16,7 @@ interface ExamScheduler {
     location: string;
     invigilators: string[];
 }
+
 // Generate the unique classId using year, class index, and class name
 const generateClassId = (baseClassId: string, year: string, classIndex: string) => {
     return `${baseClassId}_${year}_Class${classIndex}`;
@@ -28,9 +32,9 @@ const mockExamSchedulers: ExamScheduler[] = [];
 for (let i = 1; i <= 3; ++i) {
     const year = "2024";
     const classIndex = i.toString().padStart(2, "0");  // "01", "02", "03", etc.
-    const baseClassId = `Math_101`;
+    const baseClassId = `Toan_101`;
     const classId = generateClassId(baseClassId, year, classIndex);
-    const baseExamName = `Final Exam`;
+    const baseExamName = `Thi Cuối Kỳ`;
 
     mockExamSchedulers.push({
         id: generateExamID(classId, 1),
@@ -39,8 +43,8 @@ for (let i = 1; i <= 3; ++i) {
         attemptNumber: 1,  // First attempt
         startTime: `09:00 09/09/${year}`,
         endTime: `11:00 09/09/${year}`,
-        location: `Room ${i}`,
-        invigilators: [`Lecturer${i}`, `Lecturer${i + 1}`],
+        location: `Phòng ${i}`,
+        invigilators: [`Giám Thị${i}`, `Giám Thị${i + 1}`],
     });
 
     mockExamSchedulers.push({
@@ -50,8 +54,8 @@ for (let i = 1; i <= 3; ++i) {
         attemptNumber: 2,  // Second attempt
         startTime: `09:00 16/09/${year}`,
         endTime: `11:00 16/09/${year}`,
-        location: `Room ${i}`,
-        invigilators: [`Lecturer${i}`, `Lecturer${i + 1}`],
+        location: `Phòng ${i}`,
+        invigilators: [`Giám Thị${i}`, `Giám Thị${i + 1}`],
     });
 }
 
@@ -90,7 +94,7 @@ const EditableCell: React.FC<React.PropsWithChildren<EditableCellProps>> = ({
                 <Form.Item
                     name={dataIndex}
                     style={{ margin: 0 }}
-                    rules={[{ required: true, message: `Please Input ${title}!` }]}
+                    rules={[{ required: true, message: `Vui lòng nhập ${title}!` }]}
                 >
                     {inputNode}
                 </Form.Item>
@@ -102,6 +106,27 @@ const EditableCell: React.FC<React.PropsWithChildren<EditableCellProps>> = ({
 };
 
 export default function ExamSchedulerPage() {
+    const { user, loading } = useAuth();
+
+    if (loading) {
+        return <Spin size="large" />;
+    }
+    if (!user) {
+        return (
+            <div style={{
+                display: 'flex',
+                flexDirection: 'column',
+                justifyContent: 'center',
+                alignItems: 'center',
+                textAlign: 'center',
+            }}>
+                <Title level={2} style={{ marginBottom: '24px', color: '#1677ff' }}>Vui lòng đăng nhập để truy cập nội dung</Title>
+                <Link href="/dashboard" passHref>
+                    <Button type="primary" size="large">Đăng nhập</Button>
+                </Link>
+            </div>
+        );
+    }
     const [form] = Form.useForm();
     const [data, setData] = useState(mockExamSchedulers);
     const [editingID, setEditingID] = useState<string | null>(null);
@@ -129,68 +154,68 @@ export default function ExamSchedulerPage() {
                 setEditingID(null);
             }
         } catch (error) {
-            console.log('There is a problem with editing rows, see examScheduler.tsx', error);
+            console.log('Có lỗi xảy ra khi chỉnh sửa các hàng, xem examScheduler.tsx', error);
         }
     };
 
-    const columns= [
+    const columns = [
         {
-            title: 'Exam Name',
+            title: 'Tên kỳ thi',
             dataIndex: 'examName',
             width: '10%',
             editable: true,
         },
         {
-            title: 'Class ID',
+            title: 'Mã lớp học',
             dataIndex: 'classId',
             width: '15%',
             editable: true,
             render: (text: string) => text,
         },
         {
-            title: 'Start Time',
+            title: 'Thời gian bắt đầu',
             dataIndex: 'startTime',
             width: '15%',
             editable: true,
             render: (text: string) => text,
         },
         {
-            title: 'End Time',
+            title: 'Thời gian kết thúc',
             dataIndex: 'endTime',
             width: '15%',
             editable: true,
             render: (text: string) => text,
         },
         {
-            title: 'Location',
+            title: 'Địa điểm',
             dataIndex: 'location',
             width: '15%',
             editable: true,
         },
         {
-            title: 'Invigilators',
+            title: 'Giám thị',
             dataIndex: 'invigilators',
             width: '20%',
             editable: true,
             render: (invigilators: string[]) => invigilators.join(', '),
         },
         {
-            title: 'Operation',
+            title: 'Thao tác',
             dataIndex: 'operation',
             render: (_: any, record: ExamScheduler) => {
                 const editable = isEditing(record);
                 return editable ? (
                     <span>
                         <Typography.Link onClick={() => save(record.id)} style={{ marginRight: 8 }}>
-                            Save
+                            Lưu
                         </Typography.Link>
-                        <Popconfirm title="Are you sure you want to cancel?" onConfirm={cancel}>
-                            <a>Cancel</a>
+                        <Popconfirm title="Bạn có chắc muốn hủy bỏ?" onConfirm={cancel}>
+                            <a>Hủy</a>
                         </Popconfirm>
                     </span>
                 ) : (
                     <Typography.Link disabled={editingID !== null} onClick={() => edit(record)}>
-                        Edit
+                        Chỉnh sửa
                     </Typography.Link>
                 );
             },

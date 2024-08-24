@@ -2,163 +2,173 @@
 import React, { useState } from 'react';
 import {
     MenuFoldOutlined, MenuUnfoldOutlined,
-    UserOutlined, WeiboSquareOutlined
+    HomeOutlined, InfoCircleOutlined,
+    UserOutlined, TeamOutlined,
+    BookOutlined, DashboardOutlined,
+    CalendarOutlined, CheckCircleOutlined,
+    LoginOutlined, FileSearchOutlined
 } from '@ant-design/icons';
-import {Button, Flex, Layout, Menu, theme,Image} from 'antd';
+import {Button, Layout, Menu, theme, Image} from 'antd';
 import {Content, Header} from "antd/es/layout/layout";
 import Link from "next/link";
-const {Sider}=Layout;
+import {AuthProvider} from "@/firebase/initFirebase";
 
+const {Sider} = Layout;
 
 const MenuItem = [
     {
         key: '1',
-        icon: <WeiboSquareOutlined />,
+        icon: <HomeOutlined />,
         label: (
             <Link href={"/"} passHref>
-                Homepage
+                Trang Chủ
             </Link>
         ),
     },
     {
         key: '2',
-        icon: <WeiboSquareOutlined />,
+        icon: <InfoCircleOutlined />,
         label: (
             <Link href={"/about"} passHref>
-                About
+                Giới Thiệu
             </Link>
         ),
     },
     {
         key: '3',
-        icon: <WeiboSquareOutlined />,
+        icon: <UserOutlined />,
         label: (
             <Link href={"/lecturer"} passHref>
-                Lecturer
+                Giảng Viên
             </Link>
         ),
     },
     {
         key: '4',
-        icon: <WeiboSquareOutlined />,
+        icon: <TeamOutlined />,
         label: (
-            <Link href={"/manager"} passHref>
-                Manager
+            <Link href={"/student"} passHref>
+                Sinh Viên
             </Link>
         ),
     },
     {
         key: '5',
-        icon: <WeiboSquareOutlined />,
+        icon: <BookOutlined />,
         label: (
-            <Link href={"/student"} passHref>
-                Student
+            <Link href={"/class"} passHref>
+                Lớp Học
             </Link>
         ),
     },
     {
         key: '6',
-        icon: <WeiboSquareOutlined />,
+        icon: <CalendarOutlined />,
         label: (
-            <Link href={"/dashboard"} passHref>
-                Dashboard
+            <Link href={"/examscheduler"} passHref>
+                Lịch Thi
             </Link>
         ),
     },
     {
         key: '7',
-        icon: <WeiboSquareOutlined />,
+        icon: <FileSearchOutlined />,
         label: (
-            <Link href={"/class"} passHref>
-                Class
+            <Link href={"/examattempt"} passHref>
+                Kỳ Thi
             </Link>
         ),
     },
     {
         key: '8',
-        icon: <WeiboSquareOutlined />,
+        icon: <CheckCircleOutlined />,
         label: (
-            <Link href={"/examscheduler"} passHref>
-                Exam Scheduler
+            <Link href={"/eligibilitycheckview"} passHref>
+                Xuất học bạ
             </Link>
         ),
     },
     {
         key: '9',
-        icon: <WeiboSquareOutlined />,
+        icon: <DashboardOutlined />,
         label: (
-            <Link href={"/examattempt"} passHref>
-                Exam Attempt
+            <Link href={"/dashboard"} passHref>
+                Bảng Điều Khiển
             </Link>
         ),
     },
     {
         key: '10',
-        icon: <WeiboSquareOutlined />,
+        icon: <LoginOutlined />,
         label: (
-            <Link href={"/eligibilitycheckview"} passHref>
-                Eligibility Check
+            <Link href={"/login"} passHref>
+                Đăng Nhập
             </Link>
         ),
     },
 ];
+
 interface CustomLayoutProps {
     children: React.ReactNode;
 }
-const CustomLayout: React.FC<CustomLayoutProps> = ({children}) =>{
-const [collapsed, setCollapsed] = React.useState(false);
-const {
-    token: { colorBgContainer, borderRadiusLG },
-} = theme.useToken();
-return (
-       <Layout >
-           <Sider style={{}} collapsible collapsed={collapsed}>
-               <div className="demo-logo-vertical"/>
-               <Menu theme="dark"
-               mode="inline"
-               defaultSelectedKeys={["1"]}
-               items={MenuItem}>
-               </Menu>
-           </Sider>
-           <Layout>
-               <Header style={{padding:0,background:colorBgContainer }}>
-                        <Flex style={{display:"flex",alignItems:'center'}}>
-                       <Button
-                           style={{width:'64px',height:'64px', }}
-                           onClick={() => setCollapsed(!collapsed)}
-                           type="text"
-                           icon={collapsed ? <MenuUnfoldOutlined/> : <MenuFoldOutlined />}
-                       ></Button>
-                    <div           style={{
-                        position: 'relative',
-                        flexGrow: 1, // Make the div take all remaining space
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        height: '64px', // Ensure the height matches the button for alignment
-                    }}
+
+const CustomLayout: React.FC<CustomLayoutProps> = ({children}) => {
+    const [collapsed, setCollapsed] = useState(false);
+    const {
+        token: { colorBgContainer, borderRadiusLG },
+    } = theme.useToken();
+
+    return (
+        <AuthProvider>
+            <Layout>
+                <Sider collapsible collapsed={collapsed}>
+                    <div className="demo-logo-vertical" />
+                    <Menu
+                        theme="dark"
+                        mode="inline"
+                        defaultSelectedKeys={["1"]}
+                        items={MenuItem}
+                    />
+                </Sider>
+                <Layout>
+                    <Header style={{ padding: 0, background: colorBgContainer }}>
+                        <div style={{ display: "flex", alignItems: 'center' }}>
+                            <Button
+                                style={{ width: '64px', height: '64px' }}
+                                onClick={() => setCollapsed(!collapsed)}
+                                type="text"
+                                icon={collapsed ? <MenuUnfoldOutlined /> : <MenuFoldOutlined />}
+                            />
+                            <div
+                                style={{
+                                    position: 'relative',
+                                    flexGrow: 1, // Make the div take all remaining space
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    justifyContent: 'center',
+                                    height: '64px', // Ensure the height matches the button for alignment
+                                }}
+                            >
+                                <Image width="500px" src="topLogo.png" />
+                            </div>
+                        </div>
+                    </Header>
+                    <Layout.Content
+                        style={{
+                            padding: 24,
+                            margin: '24px 16px',
+                            background: colorBgContainer,
+                            borderRadius: borderRadiusLG,
+                            height: '80vh',
+                            flexGrow: 1,
+                        }}
                     >
-                        <Image width="500px" src="topLogo.png"/>
-                    </div>
-                        </Flex>
-               </Header>
-               <Flex>
-               <Content
-                   style={{
-                       padding: 24,
-                       margin: '24px 16px',
-                       background: colorBgContainer,
-                       borderRadius: borderRadiusLG,
-                       height:'80vh',
-                       flexGrow: 1,
-                   }}
-               >
-                   {children}
-               </Content>
-               </Flex>
-           </Layout>
-       </Layout>
-);
+                        {children}
+                    </Layout.Content>
+                </Layout>
+            </Layout>
+        </AuthProvider>
+    );
 };
 
 export default CustomLayout;

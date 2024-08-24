@@ -1,6 +1,9 @@
 'use client'
 import React from 'react';
-import { Table, Tag, Typography } from 'antd';
+import {Button, Spin, Table, Tag, Typography} from 'antd';
+import {useAuth} from "@/firebase/initFirebase";
+import Link from "next/link";
+import Title from "antd/es/typography/Title";
 
 interface EligibilityCriteria {
     id: string;
@@ -80,5 +83,28 @@ const exampleCriteria = [
 ];
 
 export default function ExampleEligibilityCheck() {
+    const {user,loading}= useAuth();
+    if(loading)
+    {
+        return <Spin size="large"/>
+    }
+    if(!user)
+    {
+        return (
+            <div style={{
+
+                display: 'flex',
+                flexDirection: 'column',
+                justifyContent: 'center',
+                alignItems: 'center',
+                textAlign:'center',
+            }}>
+                <Title level={2} style={{marginBottom:'24px',color:'#1677ff'}}>Please login before accessing content</Title>
+                <Link href="/dashboard" passHref>
+                    <Button type="primary" size="large">Login</Button>
+                </Link>
+            </div>
+        )
+    }
     return <EligibilityCheckView studentId="12345" studentName="John Doe" criteria={exampleCriteria} />;
 }
