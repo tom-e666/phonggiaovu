@@ -1,5 +1,5 @@
 'use client'
-import {pushClasses, pushCourse, pushLecturer, pushRoom} from "@/app/dashboard/mockdata.";
+import {pushClasses, pushCourse, pushLecturer, pushRoom, UploadRoomsButton} from "@/app/dashboard/mockdata.";
 import {Button} from "antd";
 import {collection, getDocs} from "@firebase/firestore";
 import {db} from "@/firebase/initFirebase";
@@ -20,6 +20,7 @@ export default function page()
             <Button onClick={pushLecturer}>push Lecturer</Button>
             <Button onClick={pushRoom}>push Room</Button>
             <Button onClick={pushClasses}>push Class</Button>
+            <UploadRoomsButton/>
         </>
     )
 }

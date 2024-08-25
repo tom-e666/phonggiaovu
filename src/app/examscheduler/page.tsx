@@ -68,7 +68,6 @@ const EditableCell: React.FC<React.PropsWithChildren<EditableCellProps>> = ({
 
 function Page() {
     const [gridContent, setGridContent] = useState(0);
-
     return (
     <>
     <Button type="primary" onClick={()=>{setGridContent((gridContent+1)%3)}}>Chuyển view</Button>

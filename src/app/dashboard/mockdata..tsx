@@ -1,6 +1,7 @@
 'use client'
 import {addDoc, collection, doc, setDoc} from "@firebase/firestore";
 import {db} from "@/firebase/initFirebase";
+import {Button, message} from "antd";
 
 interface Course {
     code: string;            // Course code, e.g., "COMP1010"
@@ -1067,6 +1068,32 @@ export const pushClasses=async ()=>{
     }
 }
 
+export const UploadRoomsButton: React.FC = () => {
+    const rooms = [
+        { id: "B100" },
+        { id: "B101" },
+        { id: "B102" },
+        { id: "B103" },
+    ];
+
+    const uploadRooms = async () => {
+        try {
+            for (const room of rooms) {
+                await addDoc(collection(db, "availableRooms"), room);
+            }
+            message.success("Phòng đã được thêm vào cơ sở dữ liệu thành công!");
+        } catch (error) {
+            console.error("Failed to upload rooms:", error);
+            message.error("Không thể thêm phòng vào cơ sở dữ liệu.");
+        }
+    };
+
+    return (
+        <Button type="primary" onClick={uploadRooms}>
+            Thêm Phòng Vào Cơ Sở Dữ Liệu
+        </Button>
+    );
+};
 
 
 

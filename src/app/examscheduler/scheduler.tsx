@@ -83,13 +83,14 @@ const ExamScheduleTable = () => {
     const [courses, setCourses] = useState<CourseView[]>([]);
     const[hasUnsavedChanges, setHasUnsavedChanges] = useState<boolean>(false);
     const [startDate, setStartDate] = useState<Moment>();
-    function handleSuggestSchedule() {
+    async function handleSuggestSchedule() {
         if (!startDate) {
             message.error("Vui lòng chọn ngày bắt đầu trước khi đề xuất lịch!");
             return;
         }
 
-        const rooms = ["Room1", "Room2", "Room3"]; // Danh sách các phòng thi
+        const roomsSnapshot = await getDocs(collection(db, "availableRooms"));
+        const rooms = roomsSnapshot.docs.map(doc => doc.data().id);
         const roomCapacity = 30;
         const sessionsPerDay = 4;
 
@@ -131,9 +132,11 @@ const ExamScheduleTable = () => {
                     currentSession++;
                     if (currentSession > sessionsPerDay) {
                         currentSession = 1;
-                        while (currentDate.day() === 0) {
+                        currentDate = currentDate.add(1, 'day');
+                        if(currentDate.day() === 0) {
                             currentDate = currentDate.add(1, 'day'); // Chuyển sang ngày Thứ Hai)
-                        }                    }
+                        }
+                }
                 }
             }
         });
