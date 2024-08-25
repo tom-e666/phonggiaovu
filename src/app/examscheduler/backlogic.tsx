@@ -1,12 +1,5 @@
-'use client';
-
-import React, { useEffect, useState } from 'react';
-import { Button, Form, Input, InputNumber, Popconfirm, Spin, Table, TableProps, Typography } from "antd";
-import { useAuth } from "@/firebase/initFirebase";
-import Link from "next/link";
-import Title from "antd/es/typography/Title";
-import CoursesTable from "@/app/examscheduler/initialView";
-import ExamScheduleTable from "@/app/examscheduler/scheduler";
+import React from "react";
+import {DatePicker, Form, Input, InputNumber} from "antd";
 
 interface ExamRoom {
     roomId: string;
@@ -26,11 +19,18 @@ interface ExamSchedule {
     note?: string;
     examStatus?: string;
 }
+export const InitialClassView=()=>{
+    return (
+        <>
+
+        </>
+    )
+}
 interface EditableCellProps extends React.HTMLAttributes<HTMLElement> {
     editing: boolean;
     dataIndex: string;
     title: any;
-    inputType: 'number' | 'text';
+    inputType: 'text' | 'date' | 'number';
     record: ExamSchedule;
     index: number;
 }
@@ -45,17 +45,22 @@ const EditableCell: React.FC<React.PropsWithChildren<EditableCellProps>> = ({
                                                                                 children,
                                                                                 ...restProps
                                                                             }) => {
-    const inputNode = inputType === 'number' ? <InputNumber /> : <Input />;
+    let inputNode;
+    if (inputType === 'number') {
+        inputNode = <InputNumber />;
+    } else if (inputType === 'date') {
+        inputNode = <DatePicker showTime format="HH:mm DD/MM/YYYY" />;
+    } else {
+        inputNode = <Input />;
+    }
+
     return (
         <td {...restProps}>
             {editing ? (
                 <Form.Item
                     name={dataIndex}
                     style={{ margin: 0 }}
-                    rules={[{
-                        required: true,
-                        message: `Vui lòng nhập ${title}!`,
-                    }]}
+                    rules={[{ required: true, message: `Vui lòng nhập ${title}!` }]}
                 >
                     {inputNode}
                 </Form.Item>
@@ -63,20 +68,7 @@ const EditableCell: React.FC<React.PropsWithChildren<EditableCellProps>> = ({
                 children
             )}
         </td>
-    )
+    );
 };
 
-function Page() {
-    const [gridContent, setGridContent] = useState(0);
 
-    return (
-    <>
-    <Button type="primary" onClick={()=>{setGridContent((gridContent+1)%3)}}>Chuyển view</Button>
-        {gridContent === 0 && (<CoursesTable></CoursesTable>)}
-        {gridContent === 1 && (<div><ExamScheduleTable/></div>)}
-        {gridContent === 2 && (<div><ExamScheduleTable/></div>)}
-    </>
-    )
-}
-
-export default Page;
