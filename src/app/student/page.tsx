@@ -1,6 +1,6 @@
 'use client'
 import React, {useState} from "react";
-import {Button, Form, Input, InputNumber, Popconfirm, Spin, Table, TableProps, Typography} from "antd";
+import {Button, Form, Input, InputNumber, Modal, Popconfirm, Spin, Table, TableProps, Typography} from "antd";
 import {Simulate} from "react-dom/test-utils";
 import cancel = Simulate.cancel;
 import {useAuth} from "@/firebase/initFirebase";
@@ -13,7 +13,8 @@ interface Student{
     // age: number,
     // classes:string[],
     classId:string,
-    courseList:string[],
+    // courseList:string[],
+    courseList:Course[],
 }
 
 const mockStudent:Student[]=[]
@@ -25,7 +26,8 @@ for(let i=1;i<100;++i)
         // age: i,
         // classes:["The practice of love","Conjuring the judge of hell"],
         classId:`Class ${i}`,
-        courseList:[`Course ${i}`],
+        // courseList:[`Course ${i}`],
+        courseList:[{courseName:`Course ${i}`,grade:null}]
     })
 }
 
@@ -72,59 +74,140 @@ for(let i=1;i<100;++i)
 //     },
 // ];
 
+type Course = {
+    courseName: string;
+    grade: string | null;
+};
+
 const mockStudents: Student[] = [
     {
         studentId: "ST001",
-        name: "Pham Thi D",
-        classId: "Class_11B1",
-        courseList: [
-            "Course 7",
-            "Course 10"
+        name: "Tran Thi BB",
+        classId: "Class_12C2",
+        courseList: [ 
+            {
+                courseName: "Course 8",
+                grade: null
+            },
+            {
+                courseName: "Course 3",
+                grade: "D"
+            },
+            {
+                courseName: "Course 4",
+                grade: "B"
+            },
+            {
+                courseName: "Course 11",
+                grade: "A"
+            },
+            {
+                courseName: "Course 6",
+                grade: "C"
+            },
+            {
+                courseName: "Course 10",
+                grade: "F"
+            },
+            {
+                courseName: "Course 7",
+                grade: "C"
+            },
+            {
+                courseName: "Course 12",
+                grade: "B"
+            },
+            {
+                courseName: "Course 1",
+                grade: "F"
+            },
+            {
+                courseName: "Course 5",
+                grade: "A"
+            },
+            {
+                courseName: "Course 2",
+                grade: "D"
+            },
+            {
+                courseName: "Course 9",
+                grade: "B"
+            }
         ]
     },
     {
         studentId: "ST002",
-        name: "Le Van Y",
-        classId: "Class_10A2",
+        name: "Le Van CC",
+        classId: "Class_12C2",
         courseList: [
-            "Course 7",
-            "Course 2"
+            {
+                courseName: "Course 2",
+                grade: "B"
+            },
+            {
+                courseName: "Course 3",
+                grade: null
+            }
         ]
     },
     {
         studentId: "ST003",
-        name: "Pham Thi DD",
-        classId: "Class_11B2",
+        name: "Nguyen Van AA",
+        classId: "Class_10A1",
         courseList: [
-            "Course 3",
-            "Course 9",
+            {
+                courseName: "Course 2",
+                grade: "D"
+            },
+            {
+                courseName: "Course 5",
+                grade: "C"
+            }
         ]
     },
     {
         studentId: "ST004",
-        name: "Nguyen Van AA",
-        classId: "Class_10A1",
+        name: "Tran Van I",
+        classId: "Class_11B2",
         courseList: [
-            "Course 3",
-            "Course 11"
+            {
+                courseName: "Course 11",
+                grade: "C"
+            },
+            {
+                courseName: "Course 3",
+                grade: null
+            }
         ]
     },
     {
         studentId: "ST005",
-        name: "Nguyen Van M",
-        classId: "Class_10A1",
+        name: "Nguyen Van A",
+        classId: "Class_12C2",
         courseList: [
-            "Course 8",
-            "Course 3"
+            {
+                courseName: "Course 2",
+                grade: "D"
+            },
+            {
+                courseName: "Course 4",
+                grade: "F"
+            }
         ]
     },
     {
         studentId: "ST006",
-        name: "Le Van CC",
+        name: "Le Thi T",
         classId: "Class_10A1",
         courseList: [
-            "Course 9",
-            "Course 2"
+            {
+                courseName: "Course 9",
+                grade: "C"
+            },
+            {
+                courseName: "Course 1",
+                grade: "A"
+            }
         ]
     },
     {
@@ -132,845 +215,1409 @@ const mockStudents: Student[] = [
         name: "Le Van O",
         classId: "Class_12C2",
         courseList: [
-            "Course 9",
-            "Course 2"
+            {
+                courseName: "Course 6",
+                grade: "D"
+            },
+            {
+                courseName: "Course 5",
+                grade: "B"
+            }
         ]
     },
     {
         studentId: "ST008",
-        name: "Pham Van U",
-        classId: "Class_12C1",
+        name: "Hoang Thi V",
+        classId: "Class_11B1",
         courseList: [
-            "Course 5",
-            "Course 9"
+            {
+                courseName: "Course 7",
+                grade: "C"
+            },
+            {
+                courseName: "Course 2",
+                grade: "B"
+            }
         ]
     },
     {
         studentId: "ST009",
-        name: "Pham Thi D",
-        classId: "Class_11B2",
+        name: "Le Van CC",
+        classId: "Class_12C1",
         courseList: [
-            "Course 2",
-            "Course 12"
+            {
+                courseName: "Course 6",
+                grade: "F"
+            },
+            {
+                courseName: "Course 8",
+                grade: "A"
+            }
         ]
     },
     {
         studentId: "ST010",
-        name: "Hoang Thi L",
-        classId: "Class_12C1",
+        name: "Pham Thi DD",
+        classId: "Class_10A1",
         courseList: [
-            "Course 1",
-            "Course 5"
+            {
+                courseName: "Course 1",
+                grade: "D"
+            },
+            {
+                courseName: "Course 4",
+                grade: "A"
+            }
         ]
     },
     {
         studentId: "ST011",
-        name: "Nguyen Van A",
-        classId: "Class_12C1",
+        name: "Doan Van G",
+        classId: "Class_10A2",
         courseList: [
-            "Course 6",
-            "Course 5"
+            {
+                courseName: "Course 8",
+                grade: "F"
+            },
+            {
+                courseName: "Course 4",
+                grade: "B"
+            }
         ]
     },
     {
         studentId: "ST012",
-        name: "Hoang Thi L",
-        classId: "Class_11B1",
+        name: "Nguyen Thi H",
+        classId: "Class_10A2",
         courseList: [
-            "Course 9",
-            "Course 6"
+            {
+                courseName: "Course 3",
+                grade: "A"
+            },
+            {
+                courseName: "Course 4",
+                grade: "F"
+            }
         ]
     },
     {
         studentId: "ST013",
-        name: "Nguyen Van AA",
-        classId: "Class_12C1",
+        name: "Tran Thi B",
+        classId: "Class_10A2",
         courseList: [
-            "Course 11",
-            "Course 3"
+            {
+                courseName: "Course 4",
+                grade: "D"
+            },
+            {
+                courseName: "Course 10",
+                grade: "A"
+            }
         ]
     },
     {
         studentId: "ST014",
-        name: "Nguyen Van M",
+        name: "Bui Thi F",
         classId: "Class_11B2",
         courseList: [
-            "Course 7",
-            "Course 11"
+            {
+                courseName: "Course 9",
+                grade: "D"
+            },
+            {
+                courseName: "Course 11",
+                grade: "C"
+            }
         ]
     },
     {
         studentId: "ST015",
-        name: "Nguyen Van A",
-        classId: "Class_11B1",
+        name: "Hoang Van E",
+        classId: "Class_10A1",
         courseList: [
-            "Course 8",
-            "Course 2"
+            {
+                courseName: "Course 1",
+                grade: "A"
+            },
+            {
+                courseName: "Course 4",
+                grade: "C"
+            }
         ]
     },
     {
         studentId: "ST016",
-        name: "Le Van CC",
+        name: "Hoang Thi V",
         classId: "Class_12C2",
         courseList: [
-            "Course 3",
-            "Course 11"
+            {
+                courseName: "Course 1",
+                grade: "A"
+            },
+            {
+                courseName: "Course 4",
+                grade: null
+            }
         ]
     },
     {
         studentId: "ST017",
-        name: "Le Van CC",
-        classId: "Class_10A2",
+        name: "Doan Van G",
+        classId: "Class_12C1",
         courseList: [
-            "Course 11",
-            "Course 4"
+            {
+                courseName: "Course 7",
+                grade: "F"
+            },
+            {
+                courseName: "Course 12",
+                grade: "C"
+            }
         ]
     },
     {
         studentId: "ST018",
-        name: "Le Van CC",
-        classId: "Class_12C2",
+        name: "Le Van Y",
+        classId: "Class_10A2",
         courseList: [
-            "Course 10",
-            "Course 3"
+            {
+                courseName: "Course 4",
+                grade: "C"
+            },
+            {
+                courseName: "Course 6",
+                grade: null
+            }
         ]
     },
     {
         studentId: "ST019",
-        name: "Tran Van S",
+        name: "Tran Thi BB",
         classId: "Class_12C2",
         courseList: [
-            "Course 8",
-            "Course 5"
+            {
+                courseName: "Course 2",
+                grade: "B"
+            },
+            {
+                courseName: "Course 5",
+                grade: "B"
+            }
         ]
     },
     {
         studentId: "ST020",
-        name: "Pham Thi D",
+        name: "Tran Thi B",
         classId: "Class_10A2",
         courseList: [
-            "Course 9",
-            "Course 6"
+            {
+                courseName: "Course 6",
+                grade: null
+            },
+            {
+                courseName: "Course 4",
+                grade: "A"
+            }
         ]
     },
     {
         studentId: "ST021",
-        name: "Doan Van G",
+        name: "Nguyen Van AA",
         classId: "Class_11B2",
         courseList: [
-            "Course 3",
-            "Course 11"
+            {
+                courseName: "Course 9",
+                grade: null
+            },
+            {
+                courseName: "Course 11",
+                grade: "D"
+            }
         ]
     },
     {
         studentId: "ST022",
-        name: "Nguyen Thi R",
-        classId: "Class_10A1",
+        name: "Pham Thi DD",
+        classId: "Class_12C2",
         courseList: [
-            "Course 11",
-            "Course 4"
+            {
+                courseName: "Course 1",
+                grade: "F"
+            },
+            {
+                courseName: "Course 6",
+                grade: "A"
+            }
         ]
     },
     {
         studentId: "ST023",
-        name: "Le Van CC",
-        classId: "Class_11B2",
+        name: "Nguyen Van M",
+        classId: "Class_10A1",
         courseList: [
-            "Course 10",
-            "Course 7"
+            {
+                courseName: "Course 10",
+                grade: "C"
+            },
+            {
+                courseName: "Course 3",
+                grade: "B"
+            }
         ]
     },
     {
         studentId: "ST024",
-        name: "Pham Thi DD",
-        classId: "Class_10A2",
+        name: "Pham Thi D",
+        classId: "Class_11B2",
         courseList: [
-            "Course 4",
-            "Course 5"
+            {
+                courseName: "Course 7",
+                grade: "D"
+            },
+            {
+                courseName: "Course 2",
+                grade: "C"
+            }
         ]
     },
     {
         studentId: "ST025",
-        name: "Tran Thi N",
-        classId: "Class_12C1",
+        name: "Tran Thi X",
+        classId: "Class_10A1",
         courseList: [
-            "Course 12",
-            "Course 10"
+            {
+                courseName: "Course 9",
+                grade: "C"
+            },
+            {
+                courseName: "Course 3",
+                grade: null
+            }
         ]
     },
     {
         studentId: "ST026",
-        name: "Tran Van I",
-        classId: "Class_11B2",
+        name: "Nguyen Van A",
+        classId: "Class_10A1",
         courseList: [
-            "Course 7",
-            "Course 4"
+            {
+                courseName: "Course 8",
+                grade: "B"
+            },
+            {
+                courseName: "Course 2",
+                grade: "C"
+            }
         ]
     },
     {
         studentId: "ST027",
-        name: "Le Thi J",
+        name: "Hoang Thi L",
         classId: "Class_10A2",
         courseList: [
-            "Course 6",
-            "Course 5"
+            {
+                courseName: "Course 8",
+                grade: "C"
+            },
+            {
+                courseName: "Course 2",
+                grade: "F"
+            }
         ]
     },
     {
         studentId: "ST028",
-        name: "Tran Thi X",
+        name: "Pham Thi D",
         classId: "Class_10A1",
         courseList: [
-            "Course 3",
-            "Course 6"
+            {
+                courseName: "Course 2",
+                grade: "D"
+            },
+            {
+                courseName: "Course 1",
+                grade: "F"
+            }
         ]
     },
     {
         studentId: "ST029",
-        name: "Hoang Thi L",
-        classId: "Class_12C2",
+        name: "Le Thi T",
+        classId: "Class_10A1",
         courseList: [
-            "Course 1",
-            "Course 12"
+            {
+                courseName: "Course 5",
+                grade: "C"
+            },
+            {
+                courseName: "Course 10",
+                grade: "B"
+            }
         ]
     },
     {
         studentId: "ST030",
-        name: "Hoang Thi L",
-        classId: "Class_10A2",
+        name: "Hoang Thi V",
+        classId: "Class_12C2",
         courseList: [
-            "Course 3",
-            "Course 11"
+            {
+                courseName: "Course 3",
+                grade: "C"
+            },
+            {
+                courseName: "Course 8",
+                grade: "B"
+            }
         ]
     },
     {
         studentId: "ST031",
-        name: "Pham Van K",
-        classId: "Class_11B2",
+        name: "Nguyen Van M",
+        classId: "Class_11B1",
         courseList: [
-            "Course 5",
-            "Course 9"
+            {
+                courseName: "Course 3",
+                grade: "D"
+            },
+            {
+                courseName: "Course 1",
+                grade: "D"
+            }
         ]
     },
     {
         studentId: "ST032",
-        name: "Pham Van U",
-        classId: "Class_10A1",
+        name: "Nguyen Van AA",
+        classId: "Class_11B2",
         courseList: [
-            "Course 10",
-            "Course 3"
+            {
+                courseName: "Course 10",
+                grade: "C"
+            },
+            {
+                courseName: "Course 11",
+                grade: "A"
+            }
         ]
     },
     {
         studentId: "ST033",
-        name: "Le Thi J",
+        name: "Hoang Thi L",
         classId: "Class_12C1",
         courseList: [
-            "Course 10",
-            "Course 1"
+            {
+                courseName: "Course 2",
+                grade: "A"
+            },
+            {
+                courseName: "Course 7",
+                grade: null
+            }
         ]
     },
     {
         studentId: "ST034",
-        name: "Tran Thi BB",
-        classId: "Class_10A2",
+        name: "Le Van C",
+        classId: "Class_11B2",
         courseList: [
-            "Course 7",
-            "Course 2"
+            {
+                courseName: "Course 11",
+                grade: null
+            },
+            {
+                courseName: "Course 10",
+                grade: "F"
+            }
         ]
     },
     {
         studentId: "ST035",
-        name: "Pham Thi DD",
+        name: "Hoang Van E",
         classId: "Class_10A2",
         courseList: [
-            "Course 1",
-            "Course 6"
+            {
+                courseName: "Course 7",
+                grade: "F"
+            },
+            {
+                courseName: "Course 9",
+                grade: "F"
+            }
         ]
     },
     {
         studentId: "ST036",
-        name: "Tran Thi X",
-        classId: "Class_11B2",
+        name: "Le Van C",
+        classId: "Class_10A1",
         courseList: [
-            "Course 12",
-            "Course 10"
+            {
+                courseName: "Course 1",
+                grade: "A"
+            },
+            {
+                courseName: "Course 6",
+                grade: "B"
+            }
         ]
     },
     {
         studentId: "ST037",
-        name: "Tran Thi B",
-        classId: "Class_11B2",
+        name: "Nguyen Thi H",
+        classId: "Class_12C1",
         courseList: [
-            "Course 6",
-            "Course 12"
+            {
+                courseName: "Course 6",
+                grade: "B"
+            },
+            {
+                courseName: "Course 3",
+                grade: "B"
+            }
         ]
     },
     {
         studentId: "ST038",
-        name: "Tran Thi BB",
-        classId: "Class_10A2",
+        name: "Tran Van I",
+        classId: "Class_12C2",
         courseList: [
-            "Course 10",
-            "Course 5"
+            {
+                courseName: "Course 2",
+                grade: null
+            },
+            {
+                courseName: "Course 1",
+                grade: "B"
+            }
         ]
     },
     {
         studentId: "ST039",
-        name: "Hoang Thi L",
+        name: "Nguyen Thi R",
         classId: "Class_10A1",
         courseList: [
-            "Course 3",
-            "Course 5"
+            {
+                courseName: "Course 9",
+                grade: "D"
+            },
+            {
+                courseName: "Course 12",
+                grade: null
+            }
         ]
     },
     {
         studentId: "ST040",
-        name: "Le Van O",
-        classId: "Class_11B2",
+        name: "Nguyen Van M",
+        classId: "Class_12C1",
         courseList: [
-            "Course 5",
-            "Course 6"
+            {
+                courseName: "Course 3",
+                grade: "F"
+            },
+            {
+                courseName: "Course 9",
+                grade: null
+            }
         ]
     },
     {
         studentId: "ST041",
-        name: "Le Van O",
-        classId: "Class_10A2",
+        name: "Pham Thi P",
+        classId: "Class_11B1",
         courseList: [
-            "Course 1",
-            "Course 12"
+            {
+                courseName: "Course 7",
+                grade: null
+            },
+            {
+                courseName: "Course 4",
+                grade: "A"
+            }
         ]
     },
     {
         studentId: "ST042",
-        name: "Nguyen Van W",
-        classId: "Class_12C1",
+        name: "Pham Thi D",
+        classId: "Class_12C2",
         courseList: [
-            "Course 5",
-            "Course 8"
+            {
+                courseName: "Course 3",
+                grade: "A"
+            },
+            {
+                courseName: "Course 10",
+                grade: null
+            }
         ]
     },
     {
         studentId: "ST043",
-        name: "Le Van CC",
-        classId: "Class_10A1",
+        name: "Hoang Van E",
+        classId: "Class_10A2",
         courseList: [
-            "Course 7",
-            "Course 9"
+            {
+                courseName: "Course 11",
+                grade: "D"
+            },
+            {
+                courseName: "Course 9",
+                grade: "A"
+            }
         ]
     },
     {
         studentId: "ST044",
-        name: "Tran Van I",
-        classId: "Class_12C1",
+        name: "Le Van O",
+        classId: "Class_11B2",
         courseList: [
-            "Course 11",
-            "Course 6"
+            {
+                courseName: "Course 4",
+                grade: "F"
+            },
+            {
+                courseName: "Course 3",
+                grade: "C"
+            }
         ]
     },
     {
         studentId: "ST045",
-        name: "Nguyen Van A",
-        classId: "Class_12C1",
+        name: "Tran Van I",
+        classId: "Class_11B1",
         courseList: [
-            "Course 3",
-            "Course 8"
+            {
+                courseName: "Course 3",
+                grade: "C"
+            },
+            {
+                courseName: "Course 11",
+                grade: "D"
+            }
         ]
     },
     {
         studentId: "ST046",
-        name: "Hoang Thi L",
-        classId: "Class_10A1",
+        name: "Le Thi T",
+        classId: "Class_11B2",
         courseList: [
-            "Course 4",
-            "Course 11"
+            {
+                courseName: "Course 10",
+                grade: "A"
+            },
+            {
+                courseName: "Course 12",
+                grade: "D"
+            }
         ]
     },
     {
         studentId: "ST047",
-        name: "Tran Thi BB",
+        name: "Hoang Van E",
         classId: "Class_10A2",
         courseList: [
-            "Course 10",
-            "Course 8"
+            {
+                courseName: "Course 1",
+                grade: "D"
+            },
+            {
+                courseName: "Course 11",
+                grade: "F"
+            }
         ]
     },
     {
         studentId: "ST048",
-        name: "Nguyen Van A",
-        classId: "Class_12C1",
+        name: "Hoang Van E",
+        classId: "Class_11B1",
         courseList: [
-            "Course 12",
-            "Course 5"
+            {
+                courseName: "Course 1",
+                grade: "D"
+            },
+            {
+                courseName: "Course 8",
+                grade: "D"
+            }
         ]
     },
     {
         studentId: "ST049",
-        name: "Hoang Thi V",
-        classId: "Class_11B1",
+        name: "Pham Thi DD",
+        classId: "Class_12C2",
         courseList: [
-            "Course 8",
-            "Course 7"
+            {
+                courseName: "Course 3",
+                grade: "A"
+            },
+            {
+                courseName: "Course 12",
+                grade: "F"
+            }
         ]
     },
     {
         studentId: "ST050",
-        name: "Nguyen Thi R",
-        classId: "Class_11B1",
+        name: "Le Van O",
+        classId: "Class_10A1",
         courseList: [
-            "Course 5",
-            "Course 11"
+            {
+                courseName: "Course 11",
+                grade: "D"
+            },
+            {
+                courseName: "Course 12",
+                grade: "D"
+            }
         ]
     },
     {
         studentId: "ST051",
-        name: "Nguyen Van M",
-        classId: "Class_11B2",
+        name: "Tran Thi X",
+        classId: "Class_10A1",
         courseList: [
-            "Course 10",
-            "Course 9"
+            {
+                courseName: "Course 2",
+                grade: "F"
+            },
+            {
+                courseName: "Course 10",
+                grade: "B"
+            }
         ]
     },
     {
         studentId: "ST052",
-        name: "Hoang Thi V",
+        name: "Nguyen Thi R",
         classId: "Class_12C1",
         courseList: [
-            "Course 7",
-            "Course 4"
+            {
+                courseName: "Course 10",
+                grade: null
+            },
+            {
+                courseName: "Course 5",
+                grade: "A"
+            }
         ]
     },
     {
         studentId: "ST053",
-        name: "Le Van CC",
-        classId: "Class_12C2",
+        name: "Tran Van I",
+        classId: "Class_10A1",
         courseList: [
-            "Course 12",
-            "Course 6"
+            {
+                courseName: "Course 5",
+                grade: "F"
+            },
+            {
+                courseName: "Course 10",
+                grade: "B"
+            }
         ]
     },
     {
         studentId: "ST054",
-        name: "Le Van Y",
-        classId: "Class_10A2",
+        name: "Pham Thi Z",
+        classId: "Class_12C1",
         courseList: [
-            "Course 11",
-            "Course 10"
+            {
+                courseName: "Course 11",
+                grade: null
+            },
+            {
+                courseName: "Course 2",
+                grade: null
+            }
         ]
     },
     {
         studentId: "ST055",
-        name: "Tran Thi B",
-        classId: "Class_11B1",
+        name: "Hoang Thi V",
+        classId: "Class_10A2",
         courseList: [
-            "Course 3",
-            "Course 4"
+            {
+                courseName: "Course 5",
+                grade: "D"
+            },
+            {
+                courseName: "Course 2",
+                grade: "A"
+            }
         ]
     },
     {
         studentId: "ST056",
-        name: "Tran Thi BB",
+        name: "Nguyen Thi H",
         classId: "Class_10A1",
         courseList: [
-            "Course 4",
-            "Course 7"
+            {
+                courseName: "Course 6",
+                grade: "A"
+            },
+            {
+                courseName: "Course 5",
+                grade: "B"
+            }
         ]
     },
     {
         studentId: "ST057",
-        name: "Nguyen Van AA",
-        classId: "Class_10A2",
+        name: "Pham Thi DD",
+        classId: "Class_11B1",
         courseList: [
-            "Course 1",
-            "Course 11"
+            {
+                courseName: "Course 8",
+                grade: null
+            },
+            {
+                courseName: "Course 7",
+                grade: "F"
+            }
         ]
     },
     {
         studentId: "ST058",
-        name: "Tran Thi X",
-        classId: "Class_11B1",
+        name: "Tran Thi N",
+        classId: "Class_10A1",
         courseList: [
-            "Course 1",
-            "Course 3"
+            {
+                courseName: "Course 2",
+                grade: "B"
+            },
+            {
+                courseName: "Course 3",
+                grade: "A"
+            }
         ]
     },
     {
         studentId: "ST059",
-        name: "Hoang Thi V",
-        classId: "Class_12C2",
+        name: "Bui Thi F",
+        classId: "Class_10A2",
         courseList: [
-            "Course 9",
-            "Course 11"
+            {
+                courseName: "Course 10",
+                grade: "A"
+            },
+            {
+                courseName: "Course 12",
+                grade: null
+            }
         ]
     },
     {
         studentId: "ST060",
-        name: "Pham Thi P",
+        name: "Nguyen Van M",
         classId: "Class_10A1",
         courseList: [
-            "Course 11",
-            "Course 10"
+            {
+                courseName: "Course 11",
+                grade: "C"
+            },
+            {
+                courseName: "Course 3",
+                grade: null
+            }
         ]
     },
     {
         studentId: "ST061",
-        name: "Nguyen Van M",
-        classId: "Class_12C2",
+        name: "Nguyen Thi R",
+        classId: "Class_10A2",
         courseList: [
-            "Course 8",
-            "Course 6"
+            {
+                courseName: "Course 12",
+                grade: "F"
+            },
+            {
+                courseName: "Course 9",
+                grade: "C"
+            }
         ]
     },
     {
         studentId: "ST062",
-        name: "Pham Thi D",
-        classId: "Class_11B2",
+        name: "Tran Thi X",
+        classId: "Class_11B1",
         courseList: [
-            "Course 1",
-            "Course 3"
+            {
+                courseName: "Course 11",
+                grade: "D"
+            },
+            {
+                courseName: "Course 1",
+                grade: "C"
+            }
         ]
     },
     {
         studentId: "ST063",
-        name: "Le Van Y",
-        classId: "Class_10A2",
+        name: "Nguyen Van A",
+        classId: "Class_12C1",
         courseList: [
-            "Course 8",
-            "Course 10"
+            {
+                courseName: "Course 10",
+                grade: "A"
+            },
+            {
+                courseName: "Course 9",
+                grade: "B"
+            }
         ]
     },
     {
         studentId: "ST064",
-        name: "Doan Van G",
-        classId: "Class_12C2",
+        name: "Pham Thi D",
+        classId: "Class_10A1",
         courseList: [
-            "Course 4",
-            "Course 2"
+            {
+                courseName: "Course 1",
+                grade: null
+            },
+            {
+                courseName: "Course 8",
+                grade: "A"
+            }
         ]
     },
     {
         studentId: "ST065",
-        name: "Le Thi T",
-        classId: "Class_12C1",
+        name: "Tran Van S",
+        classId: "Class_10A1",
         courseList: [
-            "Course 11",
-            "Course 12"
+            {
+                courseName: "Course 7",
+                grade: "C"
+            },
+            {
+                courseName: "Course 8",
+                grade: null
+            }
         ]
     },
     {
         studentId: "ST066",
-        name: "Le Van O",
-        classId: "Class_10A2",
+        name: "Tran Thi BB",
+        classId: "Class_12C2",
         courseList: [
-            "Course 10",
-            "Course 11"
+            {
+                courseName: "Course 2",
+                grade: "F"
+            },
+            {
+                courseName: "Course 10",
+                grade: "F"
+            }
         ]
     },
     {
         studentId: "ST067",
-        name: "Pham Thi DD",
-        classId: "Class_10A1",
+        name: "Pham Thi P",
+        classId: "Class_11B1",
         courseList: [
-            "Course 2",
-            "Course 7"
+            {
+                courseName: "Course 7",
+                grade: "D"
+            },
+            {
+                courseName: "Course 10",
+                grade: "F"
+            }
         ]
     },
     {
         studentId: "ST068",
-        name: "Pham Thi DD",
-        classId: "Class_12C2",
+        name: "Nguyen Thi R",
+        classId: "Class_11B1",
         courseList: [
-            "Course 8",
-            "Course 11"
+            {
+                courseName: "Course 6",
+                grade: "B"
+            },
+            {
+                courseName: "Course 10",
+                grade: "C"
+            }
         ]
     },
     {
         studentId: "ST069",
-        name: "Tran Thi BB",
-        classId: "Class_10A2",
+        name: "Nguyen Thi H",
+        classId: "Class_11B2",
         courseList: [
-            "Course 9",
-            "Course 3"
+            {
+                courseName: "Course 6",
+                grade: "C"
+            },
+            {
+                courseName: "Course 12",
+                grade: "C"
+            }
         ]
     },
     {
         studentId: "ST070",
-        name: "Hoang Van Q",
+        name: "Bui Thi F",
         classId: "Class_12C1",
         courseList: [
-            "Course 10",
-            "Course 9"
+            {
+                courseName: "Course 8",
+                grade: "A"
+            },
+            {
+                courseName: "Course 11",
+                grade: "D"
+            }
         ]
     },
     {
         studentId: "ST071",
-        name: "Tran Thi N",
-        classId: "Class_11B1",
+        name: "Pham Thi DD",
+        classId: "Class_11B2",
         courseList: [
-            "Course 11",
-            "Course 6"
+            {
+                courseName: "Course 9",
+                grade: "F"
+            },
+            {
+                courseName: "Course 10",
+                grade: "B"
+            }
         ]
     },
     {
         studentId: "ST072",
-        name: "Le Van O",
-        classId: "Class_11B2",
+        name: "Le Thi T",
+        classId: "Class_12C1",
         courseList: [
-            "Course 9",
-            "Course 11"
+            {
+                courseName: "Course 4",
+                grade: "C"
+            },
+            {
+                courseName: "Course 10",
+                grade: "F"
+            }
         ]
     },
     {
         studentId: "ST073",
-        name: "Nguyen Van AA",
-        classId: "Class_10A1",
+        name: "Tran Thi B",
+        classId: "Class_11B2",
         courseList: [
-            "Course 3",
-            "Course 5"
+            {
+                courseName: "Course 1",
+                grade: null
+            },
+            {
+                courseName: "Course 4",
+                grade: "F"
+            }
         ]
     },
     {
         studentId: "ST074",
-        name: "Tran Thi B",
-        classId: "Class_12C2",
+        name: "Nguyen Van AA",
+        classId: "Class_10A2",
         courseList: [
-            "Course 10",
-            "Course 2"
+            {
+                courseName: "Course 6",
+                grade: "A"
+            },
+            {
+                courseName: "Course 7",
+                grade: "C"
+            }
         ]
     },
     {
         studentId: "ST075",
-        name: "Hoang Van E",
-        classId: "Class_10A2",
+        name: "Doan Van G",
+        classId: "Class_12C2",
         courseList: [
-            "Course 7",
-            "Course 11"
+            {
+                courseName: "Course 10",
+                grade: "F"
+            },
+            {
+                courseName: "Course 5",
+                grade: "B"
+            }
         ]
     },
     {
         studentId: "ST076",
-        name: "Le Van C",
-        classId: "Class_11B2",
+        name: "Tran Thi BB",
+        classId: "Class_12C2",
         courseList: [
-            "Course 6",
-            "Course 7"
+            {
+                courseName: "Course 10",
+                grade: "B"
+            },
+            {
+                courseName: "Course 12",
+                grade: "D"
+            }
         ]
     },
     {
         studentId: "ST077",
-        name: "Bui Thi F",
-        classId: "Class_10A1",
+        name: "Nguyen Van AA",
+        classId: "Class_11B1",
         courseList: [
-            "Course 2",
-            "Course 8"
+            {
+                courseName: "Course 9",
+                grade: "F"
+            },
+            {
+                courseName: "Course 2",
+                grade: "B"
+            }
         ]
     },
     {
         studentId: "ST078",
-        name: "Pham Van K",
-        classId: "Class_10A2",
+        name: "Nguyen Van AA",
+        classId: "Class_12C1",
         courseList: [
-            "Course 11",
-            "Course 6"
+            {
+                courseName: "Course 1",
+                grade: "B"
+            },
+            {
+                courseName: "Course 8",
+                grade: "C"
+            }
         ]
     },
     {
         studentId: "ST079",
-        name: "Hoang Van E",
-        classId: "Class_12C2",
+        name: "Pham Thi Z",
+        classId: "Class_10A2",
         courseList: [
-            "Course 8",
-            "Course 4"
+            {
+                courseName: "Course 6",
+                grade: "B"
+            },
+            {
+                courseName: "Course 9",
+                grade: "D"
+            }
         ]
     },
     {
         studentId: "ST080",
-        name: "Le Van CC",
-        classId: "Class_10A1",
+        name: "Nguyen Thi R",
+        classId: "Class_12C1",
         courseList: [
-            "Course 9",
-            "Course 3"
+            {
+                courseName: "Course 2",
+                grade: null
+            },
+            {
+                courseName: "Course 8",
+                grade: "F"
+            }
         ]
     },
     {
         studentId: "ST081",
-        name: "Nguyen Van W",
-        classId: "Class_10A2",
+        name: "Nguyen Van M",
+        classId: "Class_11B1",
         courseList: [
-            "Course 4",
-            "Course 5"
+            {
+                courseName: "Course 10",
+                grade: null
+            },
+            {
+                courseName: "Course 11",
+                grade: "C"
+            }
         ]
     },
     {
         studentId: "ST082",
-        name: "Hoang Van E",
-        classId: "Class_11B2",
+        name: "Nguyen Van W",
+        classId: "Class_11B1",
         courseList: [
-            "Course 3",
-            "Course 6"
+            {
+                courseName: "Course 11",
+                grade: "F"
+            },
+            {
+                courseName: "Course 6",
+                grade: "C"
+            }
         ]
     },
     {
         studentId: "ST083",
-        name: "Tran Thi BB",
+        name: "Pham Van K",
         classId: "Class_11B1",
         courseList: [
-            "Course 11",
-            "Course 7"
+            {
+                courseName: "Course 8",
+                grade: "C"
+            },
+            {
+                courseName: "Course 3",
+                grade: null
+            }
         ]
     },
     {
         studentId: "ST084",
-        name: "Pham Van U",
+        name: "Tran Van I",
         classId: "Class_11B1",
         courseList: [
-            "Course 7",
-            "Course 10"
+            {
+                courseName: "Course 9",
+                grade: "A"
+            },
+            {
+                courseName: "Course 4",
+                grade: "F"
+            }
         ]
     },
     {
         studentId: "ST085",
-        name: "Le Van CC",
-        classId: "Class_10A1",
+        name: "Tran Van I",
+        classId: "Class_10A2",
         courseList: [
-            "Course 3",
-            "Course 7"
+            {
+                courseName: "Course 5",
+                grade: "C"
+            },
+            {
+                courseName: "Course 3",
+                grade: null
+            }
         ]
     },
     {
         studentId: "ST086",
-        name: "Nguyen Van M",
-        classId: "Class_11B1",
+        name: "Pham Thi D",
+        classId: "Class_11B2",
         courseList: [
-            "Course 9",
-            "Course 7"
+            {
+                courseName: "Course 10",
+                grade: "C"
+            },
+            {
+                courseName: "Course 12",
+                grade: "D"
+            }
         ]
     },
     {
         studentId: "ST087",
-        name: "Tran Thi X",
-        classId: "Class_10A1",
+        name: "Nguyen Thi R",
+        classId: "Class_11B2",
         courseList: [
-            "Course 6",
-            "Course 2"
+            {
+                courseName: "Course 9",
+                grade: "B"
+            },
+            {
+                courseName: "Course 7",
+                grade: "B"
+            }
         ]
     },
     {
         studentId: "ST088",
-        name: "Le Van O",
-        classId: "Class_10A2",
+        name: "Le Van C",
+        classId: "Class_11B1",
         courseList: [
-            "Course 7",
-            "Course 8"
+            {
+                courseName: "Course 11",
+                grade: "D"
+            },
+            {
+                courseName: "Course 7",
+                grade: "D"
+            }
         ]
     },
     {
         studentId: "ST089",
-        name: "Tran Thi N",
-        classId: "Class_12C1",
+        name: "Nguyen Van AA",
+        classId: "Class_11B1",
         courseList: [
-            "Course 6",
-            "Course 8"
+            {
+                courseName: "Course 7",
+                grade: "D"
+            },
+            {
+                courseName: "Course 3",
+                grade: null
+            }
         ]
     },
     {
         studentId: "ST090",
-        name: "Hoang Thi V",
-        classId: "Class_11B2",
+        name: "Hoang Van Q",
+        classId: "Class_12C1",
         courseList: [
-            "Course 7",
-            "Course 1"
+            {
+                courseName: "Course 5",
+                grade: "F"
+            },
+            {
+                courseName: "Course 2",
+                grade: "D"
+            }
         ]
     },
     {
         studentId: "ST091",
-        name: "Tran Van I",
-        classId: "Class_10A1",
+        name: "Nguyen Van A",
+        classId: "Class_11B1",
         courseList: [
-            "Course 3",
-            "Course 7"
+            {
+                courseName: "Course 11",
+                grade: "A"
+            },
+            {
+                courseName: "Course 6",
+                grade: "D"
+            }
         ]
     },
     {
         studentId: "ST092",
-        name: "Le Van C",
-        classId: "Class_10A1",
+        name: "Pham Thi P",
+        classId: "Class_12C1",
         courseList: [
-            "Course 9",
-            "Course 11"
+            {
+                courseName: "Course 8",
+                grade: "D"
+            },
+            {
+                courseName: "Course 5",
+                grade: "A"
+            }
         ]
     },
     {
         studentId: "ST093",
-        name: "Le Van Y",
-        classId: "Class_11B1",
+        name: "Pham Thi P",
+        classId: "Class_11B2",
         courseList: [
-            "Course 4",
-            "Course 2"
+            {
+                courseName: "Course 3",
+                grade: "D"
+            },
+            {
+                courseName: "Course 1",
+                grade: null
+            }
         ]
     },
     {
         studentId: "ST094",
-        name: "Tran Van S",
-        classId: "Class_11B1",
+        name: "Nguyen Van W",
+        classId: "Class_10A2",
         courseList: [
-            "Course 5",
-            "Course 8"
+            {
+                courseName: "Course 3",
+                grade: "F"
+            },
+            {
+                courseName: "Course 11",
+                grade: "B"
+            }
         ]
     },
     {
         studentId: "ST095",
-        name: "Tran Thi N",
+        name: "Pham Van U",
         classId: "Class_11B2",
         courseList: [
-            "Course 7",
-            "Course 2"
+            {
+                courseName: "Course 2",
+                grade: null
+            },
+            {
+                courseName: "Course 8",
+                grade: "B"
+            }
         ]
     },
     {
         studentId: "ST096",
-        name: "Tran Thi B",
-        classId: "Class_11B1",
+        name: "Pham Van U",
+        classId: "Class_12C2",
         courseList: [
-            "Course 2",
-            "Course 8"
+            {
+                courseName: "Course 3",
+                grade: "F"
+            },
+            {
+                courseName: "Course 8",
+                grade: "F"
+            }
         ]
     },
     {
         studentId: "ST097",
-        name: "Pham Van U",
-        classId: "Class_11B2",
+        name: "Hoang Van Q",
+        classId: "Class_10A2",
         courseList: [
-            "Course 3",
-            "Course 2"
+            {
+                courseName: "Course 11",
+                grade: "B"
+            },
+            {
+                courseName: "Course 4",
+                grade: "B"
+            }
         ]
     },
     {
         studentId: "ST098",
-        name: "Le Van C",
+        name: "Le Thi T",
         classId: "Class_10A2",
         courseList: [
-            "Course 11",
-            "Course 4"
+            {
+                courseName: "Course 5",
+                grade: "B"
+            },
+            {
+                courseName: "Course 3",
+                grade: "D"
+            }
         ]
     },
     {
         studentId: "ST099",
-        name: "Nguyen Van W",
+        name: "Pham Thi DD",
         classId: "Class_11B1",
         courseList: [
-            "Course 11",
-            "Course 12"
+            {
+                courseName: "Course 8",
+                grade: "D"
+            },
+            {
+                courseName: "Course 9",
+                grade: "F"
+            }
         ]
     },
     {
         studentId: "ST100",
-        name: "Hoang Thi V",
-        classId: "Class_12C1",
+        name: "Nguyen Van A",
+        classId: "Class_11B1",
         courseList: [
-            "Course 9",
-            "Course 3"
+            {
+                courseName: "Course 4",
+                grade: null
+            },
+            {
+                courseName: "Course 12",
+                grade: null
+            }
         ]
     }
 ];
@@ -1046,6 +1693,8 @@ export default function Page(){
     const [data,setData]=React.useState(mockStudents);
     const [editingID,setEditingID]=useState('');
     const [searchText,setSearchText]=useState('');
+    const [selectedStudent, setSelectedStudent] = useState(null);
+    const [isModalVisible, setIsModalVisible] = useState(false);
 
     const isEditing= (record:Student) => record.studentId==editingID;
 
@@ -1093,6 +1742,19 @@ export default function Page(){
         setData(filteredData);
     };
 
+    const showModal = (student: any) => {
+        setSelectedStudent(student);
+        setIsModalVisible(true);
+    };
+
+    const handleOk = () => {
+        setIsModalVisible(false);
+    };
+
+    const handleCancel = () => {
+        setIsModalVisible(false);
+    };
+
     const columns=[
         {
             title:'Mã Sinh Viên',
@@ -1123,8 +1785,15 @@ export default function Page(){
             dataIndex:'courseList',
             width:'20%',
             editable:true,
-            render:(courseList:string[])=>{
-                return  courseList.join('\n')
+            render: (courseList: { courseName: string, grade: string | null }[]) => {
+                return (
+                    <div
+                        style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', cursor: 'pointer' }}
+                        onClick={() => showModal(courseList)}
+                    >
+                        {courseList.map(course => course.courseName).join(', ')}
+                    </div>
+                );
             }
         },
         {
@@ -1199,6 +1868,23 @@ export default function Page(){
 
                 </Table>
             </Form>
+            <Modal
+                title="Thông tin chi tiết"
+                visible={isModalVisible}
+                onOk={handleOk}
+                onCancel={handleCancel}
+            >
+                {selectedStudent && (
+                    <div style={{ maxHeight: '500px', overflowY: 'auto' }}>
+                        {selectedStudent.map((course: { courseName: string, grade: string | null }) => (
+                            <div key={course.courseName}>
+                                <p><strong>Khóa học:</strong> {course.courseName}</p>
+                                <p><strong>Điểm:</strong> {course.grade ? course.grade : 'Chưa có điểm'}</p>
+                            </div>
+                        ))}
+                    </div>
+                )}
+            </Modal>
         </div>
     );
 }
