@@ -5,25 +5,8 @@ import {Button, Form, Input, InputNumber, Popconfirm, Spin, Table, TableProps, T
 import {useAuth} from "@/firebase/initFirebase";
 import Link from "next/link";
 import Title from "antd/es/typography/Title";
+import {Class, retrieveClasses} from "@/app/class/crud";
 
-interface Class {
-    id: string;
-    name: string;
-    lecture: string;
-    students: string[];
-    schedule: { [key: string]: any };
-}
-
-const mockData: Class[] = [];
-for(let i = 0; i < 100; ++i) {
-    mockData.push({
-        id: i.toString(),
-        name: `Tom ${i}`,
-        lecture: `Trang ${i}`,
-        students: ['Tom', 'Trang', '@ sẽ được thay thế bằng link'],
-        schedule: { [1]: "Thứ ba 7h-9h A111", [2]: "Thứ tư 13h-15h A111" },
-    });
-}
 
 interface EditableCellProps extends React.HTMLAttributes<HTMLElement> {
     editing: boolean;
@@ -33,8 +16,7 @@ interface EditableCellProps extends React.HTMLAttributes<HTMLElement> {
     record: Class;
     index: number;
 }
-
-const editableCell: React.FC<React.PropsWithChildren<EditableCellProps>> = ({
+const EditableCell: React.FC<React.PropsWithChildren<EditableCellProps>> = ({
                                                                                 editing,
                                                                                 dataIndex,
                                                                                 title,
@@ -67,9 +49,27 @@ const editableCell: React.FC<React.PropsWithChildren<EditableCellProps>> = ({
 
 function Page() {
     const { user, loading } = useAuth();
+
+    const [form] = Form.useForm();
+    const [data, setData] = useState<Class[]>([]);
+    const [editingID, setEditingID] = useState<string | null>(null);
+
+    useEffect(() => {
+        const load = async () => {
+            try {
+                const classData = await retrieveClasses();
+                setData(classData);
+            } catch (e) {
+                console.error('Failed to load class data:', e);
+            }
+        };
+        load();
+    }, []);
+
     if (loading) {
         return <Spin size="large" />
     }
+
     if (!user) {
         return (
             <div style={{
@@ -80,51 +80,47 @@ function Page() {
                 textAlign: 'center',
             }}>
                 <Title level={2} style={{ marginBottom: '24px', color: '#1677ff' }}>Vui lòng đăng nhập trước khi truy cập nội dung</Title>
-                <Link href="/dashboard" passHref>
+                <Link href="/login" passHref>
                     <Button type="primary" size="large">Đăng nhập</Button>
                 </Link>
             </div>
         )
     }
 
-    const [form] = Form.useForm();
-    const [data, setData] = useState(mockData);
-    const [editingID, setEditingID] = useState('');
     const isEditing = (record: Class) => record.id === editingID;
 
     const edit = (record: Partial<Class> & { id: React.Key }) => {
-        form.setFieldsValue({
-            name: '',
-            lecture: '',
-            ...record,
-        })
-        setEditingID(record.id);
-    }
+        form.setFieldsValue({ ...record });
+        setEditingID(record.id as string);
+    };
 
     const cancel = () => {
-        setEditingID('');
-    }
+        setEditingID(null);
+    };
 
     const save = async (id: React.Key) => {
         try {
             const row = (await form.validateFields()) as Class;
             const newData = [...data];
-            const index = newData.findIndex((item: Class) => id === item.id);
+            const index = newData.findIndex((item) => id === item.id);
             if (index > -1) {
                 const item = newData[index];
-                newData.splice(index, 1, {
-                    ...item,
-                    ...row,
-                });
+                newData.splice(index, 1, { ...item, ...row });
+                setData(newData);
+                setEditingID(null);
             }
-            setData(newData);
-            setEditingID('');
         } catch (e) {
-            console.log("Xác thực thất bại", e);
+            console.log("Có vấn đề khi chỉnh sửa hàng:", e);
         }
-    }
+    };
 
     const columns = [
+        {
+            title: 'Mã',
+            dataIndex: 'id',
+            width: '10%',
+            editable: true,
+        },
         {
             title: 'Tên',
             dataIndex: 'name',
@@ -132,28 +128,38 @@ function Page() {
             editable: true,
         },
         {
-            title: 'Giảng viên',
-            dataIndex: 'lecture',
-            width: '20%',
+            title: 'Học kỳ',
+            dataIndex: 'term',
+            width: '10%',
             editable: true,
         },
         {
-            title: 'Xem danh sách sinh viên',
-            dataIndex: 'students',
-            width: '20%',
-            editable: false,
-            render: (students: string[]) => {
-                return students.join(', ')
-            }
+            title: 'Năm học',
+            dataIndex: 'year',
+            width: '10%',
+            editable: true,
+        },
+        {
+            title: 'Giảng viên',
+            dataIndex: 'lecturer',
+            width: '15%',
+            editable: true,
+            render: (text: string | undefined) => text || 'N/A',
+        },
+        {
+            title: 'Phòng học',
+            dataIndex: 'location',
+            width: '10%',
+            editable: true,
+            render: (text: string | undefined) => text || 'N/A',
         },
         {
             title: 'Lịch học',
             dataIndex: 'schedule',
-            width: '20%',
+            width: '15%',
             editable: false,
-            render: (schedule: { [key: string]: string }) => {
-                return Object.values(schedule).join('\n');
-            }
+            //render: (schedule: string[] | undefined) => schedule ? schedule.join(', ') : 'N/A',
+            render: (schedule: string[] | undefined) => 'Lịch học',
         },
         {
             title: 'Thao tác',
@@ -162,7 +168,7 @@ function Page() {
                 const editable = isEditing(record);
                 return editable ? (
                     <span>
-                        <Typography.Link onClick={() => { save(record.id) }} style={{ marginInlineEnd: 8 }}>
+                        <Typography.Link onClick={() => save(record.id)} style={{ marginRight: 8 }}>
                             Lưu
                         </Typography.Link>
                         <Popconfirm title="Bạn có chắc muốn hủy?" onConfirm={cancel}>
@@ -171,13 +177,13 @@ function Page() {
                     </span>
                 ) : (
                     <Typography.Link
-                        disabled={editingID !== ''}
-                        onClick={() => { edit(record) }}>
+                        disabled={editingID !== null}
+                        onClick={() => edit(record)}>
                         Sửa
                     </Typography.Link>
-                )
-            }
-        }
+                );
+            },
+        },
     ];
 
     const mergedColumns: TableProps<Class>['columns'] = columns.map((col) => {
@@ -188,7 +194,7 @@ function Page() {
             ...col,
             onCell: (record: Class) => ({
                 record,
-                inputType: col.dataIndex = 'text',
+                inputType: col.dataIndex === 'year' ? 'number' : 'text',
                 dataIndex: col.dataIndex,
                 title: col.title,
                 editing: isEditing(record)
@@ -197,18 +203,12 @@ function Page() {
     });
 
     return (
-        <div style={{
-            width: '100%',
-            height: '100%',
-        }}>
-            <Form
-                form={form}
-                component={false}
-            >
+        <div style={{ width: '100%', height: '100%' }}>
+            <Form form={form} component={false}>
                 <Table
                     components={{
                         body: {
-                            cell: editableCell,
+                            cell: EditableCell,
                         },
                     }}
                     bordered
@@ -217,8 +217,7 @@ function Page() {
                     rowClassName="editable-row"
                     pagination={{ onChange: cancel }}
                     scroll={{ y: 'calc(100vh - 300px)' }}
-                >
-                </Table>
+                />
             </Form>
         </div>
     )

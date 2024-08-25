@@ -18,6 +18,7 @@ import {createContext} from "node:vm";
 import React, {ReactNode, useContext, useEffect} from "react";
 import {useRouter} from "next/router";
 import {router} from "next/client";
+import {getFirestore} from "@firebase/firestore";
 // Your web app's Firebase configuration
 // For Firebase JS SDK v7.20.0 and later, measurementId is optional
 const firebaseConfig = {
@@ -32,7 +33,7 @@ const firebaseConfig = {
 };
 const app = initializeApp(firebaseConfig);
 export default app;
-
+export const db = getFirestore();
 
 interface AuthContextProps {
     user: User | null;

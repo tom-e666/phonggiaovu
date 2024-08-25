@@ -33,7 +33,6 @@ interface editableCellProps extends React.HTMLAttributes<HTMLElement>{
     record: Student;
     index: number;
 }
-
 const editableCell: React.FC<React.PropsWithChildren<editableCellProps>> = (
     {
         editing,
@@ -199,6 +198,43 @@ export default function Page(){
             }
         }
     });
+    const mockStudents: Student[] = [
+        {
+            studentId: 'ST001',
+            name: 'Nguyen Van A',
+            email: 'nguyenvana@example.com',
+            classId: 'Class_10A1',
+            age: 17,
+        },
+        {
+            studentId: 'ST002',
+            name: 'Tran Thi B',
+            email: 'tranthib@example.com',
+            classId: 'Class_10A2',
+            age: 16,
+        },
+        {
+            studentId: 'ST003',
+            name: 'Le Van C',
+            email: 'levanc@example.com',
+            classId: 'Class_11B1',
+            age: 17,
+        },
+        {
+            studentId: 'ST004',
+            name: 'Pham Thi D',
+            email: 'phamthid@example.com',
+            classId: 'Class_11B2',
+            age: 16,
+        },
+        {
+            studentId: 'ST005',
+            name: 'Hoang Van E',
+            email: 'hoangvane@example.com',
+            classId: 'Class_12C1',
+            age: 18,
+        },
+    ];
 
     return (
         <div>
