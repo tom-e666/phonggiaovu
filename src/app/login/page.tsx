@@ -26,7 +26,7 @@ const onFinish: FormProps<FieldType>['onFinish'] = async ({ email, password, rem
             await setPersistence(auth, persistence);
             const userCredential = await signInWithEmailAndPassword(auth, email, password);
             console.log('Đăng nhập thành công', userCredential);
-            message.success('Đăng nhập thành công. Đang chuyển đến trang chủ...');
+            message.success('Đăng nhập thành công');
         } catch (e) {
             console.error('Đăng nhập thất bại', e);
             message.error('Đăng nhập thất bại. Vui lòng kiểm tra lại thông tin đăng nhập.');
