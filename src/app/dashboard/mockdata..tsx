@@ -1,5 +1,5 @@
 'use client'
-import {addDoc, collection, doc, setDoc} from "@firebase/firestore";
+import {addDoc, collection, doc, setDoc, writeBatch} from "@firebase/firestore";
 import {db} from "@/firebase/initFirebase";
 import {Button, message} from "antd";
 
@@ -1007,76 +1007,6 @@ export const pushRoom=async ()=>{
         console.log('add document failed',error);
     }
 }
-interface StudentClass {
-    id: string;
-    name: string;
-    take1: number | null;
-    take2: number | null;
-}
-interface Class  {
-    id: string;
-    code:string;
-    name:string;
-    term: string;
-    year:number;
-    lecturer?: string;
-    lecturerID?:string;
-    location?:string;
-    schedule?: string[];
-    description?: string;
-    prerequisites?:string;
-    capacity?:number;
-    students?: StudentClass[];
-}
-
-
-const classes:Class[]=[];
-for (const course of courses) {
-    classes.push({
-        id: `${course.code}01`,
-        code: course.code,
-        name: course.name,
-        year:2024,
-        term: "03",
-        lecturer: "Dr. John Doe", // Example lecturer
-        schedule: [], // Example schedule
-        capacity: 30, // Example capacity
-        location: "Room A101", // Example location
-    });
-    classes.push({
-        id: `${course.code}02`, // Unique ID for the second class
-        code: course.code,
-        name: course.name,
-        year:2024,
-        term: "03", // This should be dynamic if necessary
-        schedule: [], // Example schedule
-        capacity: 30, // Example capacity
-        location: "Room B202", // Example location
-    });
-
-    let i=0;
-    for(const cls of classes){
-        cls.location=rooms[i].id;
-        i=(i+1)%rooms.length;
-    }
-    i=0;
-    for(const cls of classes){
-        cls.lecturer=lecturers[i].name;
-        i=(i+1)%20;
-    }
-}
-export const pushClasses=async ()=>{
-    try{
-        for(const cls of classes){
-            const docRef=doc(db,"classes",cls.id);
-            await setDoc(docRef,cls);
-        }
-        console.log("add class success");
-    }catch (e){
-        console.log("add class failed",e);
-    }
-}
-
 export const UploadRoomsButton: React.FC = () => {
     const rooms = [
         { id: "B100" },
@@ -1231,7 +1161,7 @@ const femaleNames = [
     "Mai Thị Thúy Hành"
 ];
 const birthDates = [
-    "05-01-2004", "12-02-2004", "23-03-2004", "15-04-2004", "09-05-2004",
+     "23-03-2004", "15-04-2004", "09-05-2004",
     "18-06-2004", "25-07-2004", "30-08-2004", "11-09-2004", "21-10-2004",
     "03-11-2004", "14-12-2004", "17-01-2004", "25-02-2004", "05-03-2004",
     "08-04-2004", "19-05-2004", "06-06-2004", "12-07-2004", "28-08-2004",
@@ -1257,7 +1187,131 @@ const birthDates = [
     "11-08-2004", "26-09-2004", "18-10-2004", "25-11-2004", "15-12-2004",
     "22-01-2004", "10-02-2004", "18-03-2004", "07-04-2004", "24-05-2004"
 ];
-
+const addresses = [
+    "456 Trần Hưng Đạo, Quận 5, TP. Hồ Chí Minh",
+    "789 Nguyễn Thị Minh Khai, Quận 3, TP. Hồ Chí Minh",
+    "101 Đinh Tiên Hoàng, Quận Bình Thạnh, TP. Hồ Chí Minh",
+    "202 Hai Bà Trưng, Quận 1, TP. Hồ Chí Minh",
+    "303 Phạm Ngũ Lão, Quận 1, TP. Hồ Chí Minh",
+    "404 Võ Văn Tần, Quận 3, TP. Hồ Chí Minh",
+    "505 Lý Tự Trọng, Quận 1, TP. Hồ Chí Minh",
+    "606 Trường Chinh, Quận Tân Bình, TP. Hồ Chí Minh",
+    "707 Nguyễn Văn Linh, Quận 7, TP. Hồ Chí Minh",
+    "808 Điện Biên Phủ, Quận Bình Thạnh, TP. Hồ Chí Minh",
+    "909 Cách Mạng Tháng 8, Quận 10, TP. Hồ Chí Minh",
+    "110 Võ Thị Sáu, Quận 3, TP. Hồ Chí Minh",
+    "211 Nguyễn Đình Chiểu, Quận 3, TP. Hồ Chí Minh",
+    "312 Xô Viết Nghệ Tĩnh, Quận Bình Thạnh, TP. Hồ Chí Minh",
+    "413 Bùi Thị Xuân, Quận 1, TP. Hồ Chí Minh",
+    "514 Bạch Đằng, Quận Bình Thạnh, TP. Hồ Chí Minh",
+    "615 Nguyễn Trãi, Quận 5, TP. Hồ Chí Minh",
+    "716 Hậu Giang, Quận 6, TP. Hồ Chí Minh",
+    "817 Quang Trung, Quận Gò Vấp, TP. Hồ Chí Minh",
+    "918 Trần Phú, Quận 5, TP. Hồ Chí Minh",
+    "119 Lê Văn Sỹ, Quận 3, TP. Hồ Chí Minh",
+    "220 Nguyễn Thị Tú, Quận Bình Tân, TP. Hồ Chí Minh",
+    "321 Lê Quang Định, Quận Bình Thạnh, TP. Hồ Chí Minh",
+    "422 Phan Đăng Lưu, Quận Phú Nhuận, TP. Hồ Chí Minh",
+    "523 Nguyễn Thị Định, Quận 2, TP. Hồ Chí Minh",
+    "624 Đỗ Xuân Hợp, Quận 9, TP. Hồ Chí Minh",
+    "725 Nguyễn Oanh, Quận Gò Vấp, TP. Hồ Chí Minh",
+    "826 Lê Văn Lương, Quận 7, TP. Hồ Chí Minh",
+    "927 Tôn Đức Thắng, Quận 1, TP. Hồ Chí Minh",
+    "128 Trường Sa, Quận Phú Nhuận, TP. Hồ Chí Minh",
+    "229 Hoàng Sa, Quận 3, TP. Hồ Chí Minh",
+    "330 Kha Vạn Cân, Quận Thủ Đức, TP. Hồ Chí Minh",
+    "431 Nguyễn Văn Cừ, Quận 5, TP. Hồ Chí Minh",
+    "532 Tô Hiến Thành, Quận 10, TP. Hồ Chí Minh",
+    "633 Nguyễn Kiệm, Quận Phú Nhuận, TP. Hồ Chí Minh",
+    "734 Phạm Văn Đồng, Quận Thủ Đức, TP. Hồ Chí Minh",
+    "835 Nguyễn Hữu Thọ, Quận 7, TP. Hồ Chí Minh",
+    "936 Điện Biên Phủ, Quận Bình Thạnh, TP. Hồ Chí Minh",
+    "137 Đặng Văn Bi, Quận Thủ Đức, TP. Hồ Chí Minh",
+    "238 Lý Thường Kiệt, Quận 10, TP. Hồ Chí Minh",
+    "339 Thành Thái, Quận 10, TP. Hồ Chí Minh",
+    "440 Hoàng Văn Thụ, Quận Phú Nhuận, TP. Hồ Chí Minh",
+    "541 Phạm Văn Hai, Quận Tân Bình, TP. Hồ Chí Minh",
+    "642 Nguyễn Thượng Hiền, Quận 3, TP. Hồ Chí Minh",
+    "743 Cao Thắng, Quận 10, TP. Hồ Chí Minh",
+    "844 Bùi Viện, Quận 1, TP. Hồ Chí Minh",
+    "945 Hùng Vương, Quận 5, TP. Hồ Chí Minh",
+    "146 Lê Hồng Phong, Quận 10, TP. Hồ Chí Minh",
+    "247 Lê Văn Lương, Quận 7, TP. Hồ Chí Minh",
+    "348 Nguyễn Thị Thập, Quận 7, TP. Hồ Chí Minh",
+    "449 Trần Hưng Đạo, Quận 1, TP. Hồ Chí Minh",
+    "550 Nguyễn Trãi, Quận 5, TP. Hồ Chí Minh",
+    "651 Nguyễn Văn Linh, Quận 7, TP. Hồ Chí Minh",
+    "752 Nguyễn Văn Đậu, Quận Bình Thạnh, TP. Hồ Chí Minh",
+    "853 Võ Văn Ngân, Quận Thủ Đức, TP. Hồ Chí Minh",
+    "954 Cách Mạng Tháng 8, Quận 10, TP. Hồ Chí Minh",
+    "155 Trần Bình Trọng, Quận 5, TP. Hồ Chí Minh",
+    "256 Nguyễn Hữu Thọ, Quận 7, TP. Hồ Chí Minh",
+    "357 Nguyễn Văn Linh, Quận 7, TP. Hồ Chí Minh",
+    "458 Nguyễn Văn Đậu, Quận Bình Thạnh, TP. Hồ Chí Minh",
+    "559 Nguyễn Thượng Hiền, Quận 3, TP. Hồ Chí Minh",
+    "660 Lê Văn Sỹ, Quận 3, TP. Hồ Chí Minh",
+    "761 Lê Quang Định, Quận Bình Thạnh, TP. Hồ Chí Minh",
+    "862 Nguyễn Kiệm, Quận Phú Nhuận, TP. Hồ Chí Minh",
+    "963 Trần Quang Khải, Quận 1, TP. Hồ Chí Minh",
+    "164 Hoàng Văn Thụ, Quận Tân Bình, TP. Hồ Chí Minh",
+    "265 Nguyễn Văn Cừ, Quận 5, TP. Hồ Chí Minh",
+    "366 Nguyễn Văn Linh, Quận 7, TP. Hồ Chí Minh",
+    "467 Nguyễn Văn Đậu, Quận Bình Thạnh, TP. Hồ Chí Minh",
+    "568 Nguyễn Trãi, Quận 5, TP. Hồ Chí Minh",
+    "669 Nguyễn Thị Minh Khai, Quận 3, TP. Hồ Chí Minh",
+    "770 Trần Hưng Đạo, Quận 5, TP. Hồ Chí Minh",
+    "871 Nguyễn Văn Linh, Quận 7, TP. Hồ Chí Minh",
+    "972 Phan Đăng Lưu, Quận Phú Nhuận, TP. Hồ Chí Minh",
+    "173 Nguyễn Đình Chiểu, Quận 3, TP. Hồ Chí Minh",
+    "274 Nguyễn Thị Thập, Quận 7, TP. Hồ Chí Minh",
+    "375 Nguyễn Văn Linh, Quận 7, TP. Hồ Chí Minh",
+    "476 Phạm Ngọc Thạch, Quận 3, TP. Hồ Chí Minh",
+    "577 Nguyễn Văn Linh, Quận 7, TP. Hồ Chí Minh",
+    "678 Lê Văn Lương, Quận 7, TP. Hồ Chí Minh",
+    "779 Trường Chinh, Quận Tân Bình, TP. Hồ Chí Minh",
+    "880 Trần Hưng Đạo, Quận 5, TP. Hồ Chí Minh",
+    "981 Nguyễn Văn Linh, Quận 7, TP. Hồ Chí Minh",
+    "182 Phạm Văn Đồng, Quận Thủ Đức, TP. Hồ Chí Minh",
+    "283 Nguyễn Kiệm, Quận Phú Nhuận, TP. Hồ Chí Minh",
+    "384 Nguyễn Văn Linh, Quận 7, TP. Hồ Chí Minh",
+    "485 Nguyễn Thượng Hiền, Quận 3, TP. Hồ Chí Minh",
+    "586 Lê Hồng Phong, Quận 10, TP. Hồ Chí Minh",
+    "687 Nguyễn Văn Linh, Quận 7, TP. Hồ Chí Minh",
+    "788 Trường Chinh, Quận Tân Bình, TP. Hồ Chí Minh",
+    "889 Nguyễn Văn Linh, Quận 7, TP. Hồ Chí Minh",
+    "990 Nguyễn Văn Linh, Quận 7, TP. Hồ Chí Minh",
+    "191 Phạm Văn Đồng, Quận Thủ Đức, TP. Hồ Chí Minh",
+    "292 Nguyễn Văn Cừ, Quận 5, TP. Hồ Chí Minh",
+    "393 Nguyễn Văn Linh, Quận 7, TP. Hồ Chí Minh",
+    "494 Nguyễn Văn Đậu, Quận Bình Thạnh, TP. Hồ Chí Minh",
+    "595 Nguyễn Văn Linh, Quận 7, TP. Hồ Chí Minh",
+    "696 Lê Hồng Phong, Quận 10, TP. Hồ Chí Minh",
+    "797 Trường Chinh, Quận Tân Bình, TP. Hồ Chí Minh",
+    "898 Nguyễn Văn Linh, Quận 7, TP. Hồ Chí Minh",
+    "999 Nguyễn Văn Linh, Quận 7, TP. Hồ Chí Minh",
+    "201 Phạm Ngũ Lão, Quận 1, TP. Hồ Chí Minh",
+    "302 Nguyễn Trãi, Quận 5, TP. Hồ Chí Minh",
+    "403 Nguyễn Văn Linh, Quận 7, TP. Hồ Chí Minh",
+    "504 Nguyễn Văn Đậu, Quận Bình Thạnh, TP. Hồ Chí Minh",
+    "605 Lý Tự Trọng, Quận 1, TP. Hồ Chí Minh",
+    "706 Nguyễn Văn Linh, Quận 7, TP. Hồ Chí Minh",
+    "807 Trường Chinh, Quận Tân Bình, TP. Hồ Chí Minh",
+    "908 Nguyễn Văn Linh, Quận 7, TP. Hồ Chí Minh",
+    "1009 Nguyễn Văn Linh, Quận 7, TP. Hồ Chí Minh",
+    "211 Trần Hưng Đạo, Quận 1, TP. Hồ Chí Minh",
+    "312 Nguyễn Văn Cừ, Quận 5, TP. Hồ Chí Minh",
+    "413 Nguyễn Văn Linh, Quận 7, TP. Hồ Chí Minh",
+    "514 Nguyễn Văn Đậu, Quận Bình Thạnh, TP. Hồ Chí Minh",
+    "615 Nguyễn Trãi, Quận 5, TP. Hồ Chí Minh",
+    "716 Lê Văn Sỹ, Quận 3, TP. Hồ Chí Minh",
+    "817 Trần Hưng Đạo, Quận 1, TP. Hồ Chí Minh",
+    "918 Nguyễn Văn Linh, Quận 7, TP. Hồ Chí Minh",
+    "1019 Nguyễn Văn Linh, Quận 7, TP. Hồ Chí Minh",
+    "222 Phạm Văn Đồng, Quận Thủ Đức, TP. Hồ Chí Minh",
+    "323 Trần Quang Khải, Quận 1, TP. Hồ Chí Minh",
+    "424 Nguyễn Văn Linh, Quận 7, TP. Hồ Chí Minh",
+    "525 Nguyễn Văn Đậu, Quận Bình Thạnh, TP. Hồ Chí Minh"
+];
 interface Student {
     id: string;
     name: string;
@@ -1269,6 +1323,186 @@ interface Student {
     address?: string;
     enrolledClasses?: string[];
 }
+function createStudents() {
+    const students = [];
+    let studentId = 1;
+
+    for (let i = 0; i < 123; i++) {
+        const gender = i % 2 === 0 ? 'male' : 'female';
+        const name = gender === 'male' ? maleNames[i % maleNames.length] : femaleNames[i % femaleNames.length];
+        const birth = birthDates[i % birthDates.length];
+        const address = addresses[i % addresses.length];
+        const faculty = "Information Technology"
+        const id = `4801104${studentId.toString().padStart(3, '0')}`;
+
+        const student = {
+            id,
+            name,
+            birth,
+            gender,
+            address,
+            faculty,
+            enrolledClasses: []
+        };
+
+        students.push(student);
+        studentId++;
+    }
+
+    return students;
+}
+const studentsList = createStudents();
+export const PushStudentsButton = () => {
+    const handlePushStudents = async () => {
+        try {
+            const batch = writeBatch(db);
+            const studentCollectionRef = collection(db, 'students');
+
+            studentsList.forEach((student) => {
+                const studentDocRef = doc(studentCollectionRef, student.id); // Use student.id as the document ID
+                batch.set(studentDocRef, student);
+            });
+
+            await batch.commit();
+            message.success('Students successfully added to the database!');
+        } catch (error) {
+            console.error('Error adding students: ', error);
+            message.error('Failed to add students to the database.');
+        }
+    };
+
+    return (
+        <div>
+            <Button type="primary" onClick={handlePushStudents}>
+                push Student
+            </Button>
+        </div>
+    );
+};
+interface StudentClass {
+    id: string;
+    name: string;
+    take1: number | null;
+    take2: number | null;
+}
+
+interface Class {
+    id: string;
+    code: string;
+    name: string;
+    term: string;
+    year: number;
+    lecturer?: string;
+    lecturerID?: string;
+    location?: string;
+    schedule?: string[];
+    description?: string;
+    prerequisites?: string;
+    capacity: number;
+    students: StudentClass[];
+}
+
+const classes: Class[] = [];
+const studentClassList: StudentClass[] = [];
+
+// Generate the student class list
+for (const st of studentsList) {
+    studentClassList.push({
+        id: st.id,
+        name: st.name,
+        take1: Math.floor(Math.random() * 6) + 5,
+        take2: Math.floor(Math.random() * 6) + 5,
+    });
+}
+
+const universalStudent: StudentClass = studentClassList.find(st => st.id === "4801104001") || {
+    id: "4801104001",
+    name: "Nguyen Van A",
+    take1: null,
+    take2: null
+};
+
+function shuffleArray(array: StudentClass[]): StudentClass[] {
+    for (let i = array.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [array[i], array[j]] = [array[j], array[i]];
+    }
+    return array;
+}
+
+// Shuffle the students list to ensure randomness
+shuffleArray(studentClassList);
+
+for (const course of courses) {
+    classes.push({
+        id: `${course.code}01`,
+        code: course.code,
+        name: course.name,
+        year: 2024,
+        term: "03",
+        lecturer: "",
+        schedule: [],
+        capacity: 30,
+        location: "Room A101",
+        students: []
+    });
+    classes.push({
+        id: `${course.code}02`,
+        code: course.code,
+        name: course.name,
+        year: 2024,
+        term: "03",
+        schedule: [],
+        capacity: 30,
+        location: "Room B202",
+        students: []
+    });
+}
+
+// Assign locations and lecturers
+let i = 0;
+for (const cls of classes) {
+    cls.location = rooms[i].id;
+    i = (i + 1) % rooms.length;
+}
+
+i = 0;
+for (const cls of classes) {
+    cls.lecturer = lecturers[i].name;
+    i = (i + 1) % lecturers.length;
+}
+
+// Assign students to classes
+for (const cls of classes) {
+    // Always add the universal student to each class
+    if (universalStudent) {
+        cls.students.push(universalStudent);
+    }
+    shuffleArray(studentClassList); // Re-shuffle to ensure randomness in each class
+
+    for (let j = 0; j < cls.capacity - 1 && j < studentClassList.length; j++) {
+        cls.students.push(studentClassList[j]);
+    }
+}
+
+export const pushClasses = async () => {
+    try {
+        for (const cls of classes) {
+            const docRef = doc(db, "classes", cls.id);
+            await setDoc(docRef, cls);
+        }
+        console.log("Class data added successfully");
+    } catch (e) {
+        console.log("Failed to add class data", e);
+    }
+};
+
+
+
+
+
+
+
 
 
 

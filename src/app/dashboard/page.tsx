@@ -1,17 +1,17 @@
 'use client'
-import {pushClasses, pushCourse, pushLecturer, pushRoom, UploadRoomsButton} from "@/app/dashboard/mockdata.";
+import {
+    handleUpdateClasses,
+    pushClasses,
+    pushCourse,
+    pushLecturer,
+    pushRoom,
+    PushStudentsButton,
+    UploadRoomsButton
+} from "@/app/dashboard/mockdata.";
 import {Button} from "antd";
-import {collection, getDocs} from "@firebase/firestore";
-import {db} from "@/firebase/initFirebase";
-
+import React from "react";
 export default function page()
 {
-
-    const cus= async (collName:string)=>{
-        const roomCol= collection(db,collName);
-        const snapShot= await getDocs(roomCol);
-        return snapShot.docs.map(doc=>({id:doc.id,...doc.data()}));
-    }
     return (
         <>
         <Button onClick={pushCourse}>
@@ -21,6 +21,7 @@ export default function page()
             <Button onClick={pushRoom}>push Room</Button>
             <Button onClick={pushClasses}>push Class</Button>
             <UploadRoomsButton/>
+            <PushStudentsButton/>
         </>
     )
 }

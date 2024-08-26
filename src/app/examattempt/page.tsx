@@ -137,25 +137,26 @@ const ExamScoreEntry: React.FC = () => {
         {
             title: 'Mã Sinh Viên',
             dataIndex: 'id',
-            width: '20%',
+            width: '10%',
             editable: false,
         },
         {
             title: 'Tên Sinh Viên',
             dataIndex: 'name',
-            width: '40%',
+            width: '15%',
             editable: false,
         },
         {
             title: 'Điểm Lần 1',
             dataIndex: 'take1',
-            width: '20%',
+            width: '10%',
             editable: true,
+
         },
         {
             title: 'Điểm Lần 2',
             dataIndex: 'take2',
-            width: '20%',
+            width: '10%',
             editable: true,
         },
         {
