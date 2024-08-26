@@ -159,7 +159,9 @@ const CustomLayout: React.FC<CustomLayoutProps> = ({children}) => {
                             margin: '24px 16px',
                             background: colorBgContainer,
                             borderRadius: borderRadiusLG,
-                            height: '80vh',
+                            // height: '100vh',
+                            //minHeight:'100vh',
+                            overflow:'hidden',
                             flexGrow: 1,
                         }}
                     >

@@ -1,6 +1,5 @@
 'use client'
 import {
-    handleUpdateClasses,
     pushClasses,
     pushCourse,
     pushLecturer,

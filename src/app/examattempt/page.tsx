@@ -119,6 +119,14 @@ const ExamScoreEntry: React.FC = () => {
     const save = async (id: React.Key) => {
         try {
             const row = (await form.validateFields()) as StudentClass;
+            if (row.take1 !== null && (row.take1 < 0 || row.take1 > 10)) {
+                message.error('Điểm Lần 1 phải nằm trong khoảng 0 đến 10.');
+                return;
+            }
+            if (row.take2 !== null && (row.take2 < 0 || row.take2 > 10)) {
+                message.error('Điểm Lần 2 phải nằm trong khoảng 0 đến 10.');
+                return;
+            }
             const newData = [...students];
             const index = newData.findIndex((item) => id === item.id);
             if (index > -1) {
@@ -151,6 +159,26 @@ const ExamScoreEntry: React.FC = () => {
             dataIndex: 'take1',
             width: '10%',
             editable: true,
+            render: (text: any, record: StudentClass) => {
+                const editable = isEditing(record);
+                return editable ? (
+                    <InputNumber
+                        min={0}
+                        max={10}
+                        step={0.1}
+                        value={record.take1}
+                        onChange={(value) => {
+                            if (value !== undefined && (value < 0 || value > 10)) {
+                                message.error('Điểm phải nằm trong khoảng 0 đến 10.');
+                                return;
+                            }
+                            record.take1 = value;
+                        }}
+                    />
+                ) : (
+                    <span>{record.take1}</span>
+                );
+            }
 
         },
         {
@@ -158,6 +186,26 @@ const ExamScoreEntry: React.FC = () => {
             dataIndex: 'take2',
             width: '10%',
             editable: true,
+            render: (text: any, record: StudentClass) => {
+                const editable = isEditing(record);
+                return editable ? (
+                    <InputNumber
+                        min={0}
+                        max={10}
+                        step={0.1}
+                        value={record.take1}
+                        onChange={(value) => {
+                            if (value !== undefined && (value < 0 || value > 10)) {
+                                message.error('Điểm phải nằm trong khoảng 0 đến 10.');
+                                return;
+                            }
+                            record.take1 = value;
+                        }}
+                    />
+                ) : (
+                    <span>{record.take1}</span>
+                );
+            }
         },
         {
             title: 'Hành động',
