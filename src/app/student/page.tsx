@@ -1,9 +1,9 @@
 'use client'
 import React, { useEffect, useState } from "react";
-import { Button, Form, Input, InputNumber, Popconfirm, Spin, Table, TableProps, Typography } from "antd";
+import {Button, Form, Input, InputNumber, message, Popconfirm, Spin, Table, TableProps, Typography} from "antd";
 import { useAuth, db } from "@/firebase/initFirebase";
 import Link from "next/link";
-import { collection, getDocs } from "@firebase/firestore";
+import {collection, doc, getDocs, updateDoc} from "@firebase/firestore";
 
 const { Title } = Typography;
 
@@ -45,14 +45,15 @@ const EditableCell: React.FC<React.PropsWithChildren<EditableCellProps>> = ({
                 <Form.Item
                     name={dataIndex}
                     style={{ margin: 0 }}
-                    rules={[{
-                        required: true,
-                        message: `Vui lòng nhập ${title}!`,
-                    },
-                        dataIndex === 'birth' ? {
-                            pattern: /^(0[1-9]|[12][0-9]|3[01])\/(0[1-9]|1[0-2])\/\d{4}$/,
-                            message: 'Ngày Sinh phải theo định dạng dd/mm/yyyy!',
-                        } : {}]}
+                    rules={[
+                        { required: true, message: `Vui lòng nhập ${title}!` },
+                        dataIndex === 'birth'
+                            ? {
+                                pattern: /^(0[1-9]|[12][0-9]|3[01])\/(0[1-9]|1[0-2])\/\d{4}$/,
+                                message: 'Ngày Sinh phải theo định dạng dd/mm/yyyy!',
+                            }
+                            : {},
+                    ]}
                 >
                     {inputNode}
                 </Form.Item>
@@ -62,13 +63,11 @@ const EditableCell: React.FC<React.PropsWithChildren<EditableCellProps>> = ({
         </td>
     );
 };
-
 export default function Page() {
     const { user, loading } = useAuth();
     const [form] = Form.useForm();
     const [studentData, setStudentData] = useState<Student[]>([]);
     const [editingID, setEditingID] = useState<string | null>(null);
-
     useEffect(() => {
         const fetchData = async () => {
             try {
@@ -102,20 +101,35 @@ export default function Page() {
 
     const save = async (id: React.Key) => {
         try {
+            // Validate the form and get the updated data
             const row = (await form.validateFields()) as Student;
+
+            // Find the index of the student in the local state
             const newData = [...studentData];
             const index = newData.findIndex((item) => id === item.id);
+
             if (index > -1) {
                 const item = newData[index];
-                newData.splice(index, 1, { ...item, ...row });
+                const updatedItem = { ...item, ...row };
+
+                // Update the local state
+                newData.splice(index, 1, updatedItem);
                 setStudentData(newData);
                 setEditingID(null);
+
+                // Push the update to Firestore
+                const studentDocRef = doc(db, "students", id as string);
+                await updateDoc(studentDocRef, updatedItem);
+                message.success("Cập nhật thành công!");
+                console.log("Document successfully updated!");
+            } else {
+                console.error("Failed to find the student in the local state.");
             }
         } catch (e) {
-            console.log('Có vấn đề khi chỉnh sửa hàng:', e);
+            message.error(" Cập nhật thất bại");
+            console.error("Có vấn đề khi chỉnh sửa hàng:", e);
         }
     };
-
     const columns = [
         {
             title: 'Mã Sinh Viên',
@@ -126,19 +140,19 @@ export default function Page() {
         {
             title: 'Tên',
             dataIndex: 'name',
-            width: '10%',
+            width: '15%',
             editable: true,
         },
         {
             title: 'Ngày Sinh',
             dataIndex: 'birth',
-            width: '10%',
+            width: '12%',
             editable: true,
         },
         {
             title: 'Giới Tính',
             dataIndex: 'gender',
-            width: '10%',
+            width: '9%',
             editable: true,
             render: (gender: string) => gender ? gender.charAt(0).toUpperCase() + gender.slice(1) : 'N/A',
         },
@@ -146,7 +160,7 @@ export default function Page() {
             title: 'Khoa',
             dataIndex: 'faculty',
             width: '10%',
-            editable: true,
+            editable: false,
         },
         {
             title: 'Địa Chỉ',
@@ -178,7 +192,6 @@ export default function Page() {
             }
         }
     ];
-
     const mergedColumns: TableProps<Student>['columns'] = columns.map((col) => {
         if (!col.editable) {
             return col;

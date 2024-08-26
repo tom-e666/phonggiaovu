@@ -166,7 +166,7 @@ function Page() {
             title: 'Mã',
             dataIndex: 'id',
             width: '10%',
-            editable: true,
+            editable: false,
         },
         {
             title: 'Tên',

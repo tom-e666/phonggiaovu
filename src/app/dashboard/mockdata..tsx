@@ -1,5 +1,5 @@
 'use client'
-import {addDoc, collection, doc, getDocs, setDoc, writeBatch} from "@firebase/firestore";
+import {addDoc, collection, doc, getDocs, getFirestore, setDoc, updateDoc, writeBatch} from "@firebase/firestore";
 import {db} from "@/firebase/initFirebase";
 import {Button, message} from "antd";
 
@@ -1531,6 +1531,53 @@ export const UpdateAllStudents = async () => {
             console.error("Failed to update students:", error);
         }
 };
+const generateRandomSchedule = () => {
+    const days = ['2', '3', '4', '5', '6', '7']; // Represents Thứ 2 to Thứ 7
+    const getRandomTime = () => {
+        const hours = Math.floor(Math.random() * 8) + 7; // Random hour between 07 and 14
+        const startMinutesOptions = ['00', '20', '40']; // Start minutes options
+        const startMinutes = startMinutesOptions[Math.floor(Math.random() * startMinutesOptions.length)];
+
+        const duration = Math.random() < 0.5 ? 60 : 120; // Random duration of either 60 or 120 minutes
+
+        const endHours = Math.floor((hours * 60 + parseInt(startMinutes) + duration) / 60);
+        const endMinutes = String((parseInt(startMinutes) + duration) % 60).padStart(2, '0');
+
+        return {
+            startTime: `${String(hours).padStart(2, '0')}-${startMinutes}`,
+            endTime: `${String(endHours).padStart(2, '0')}-${endMinutes}`,
+        };
+    };
+
+    const randomDay = days[Math.floor(Math.random() * days.length)];
+
+    const { startTime, endTime } = getRandomTime();
+
+    return `${startTime} - ${endTime} Thứ ${randomDay}`;
+};
+export const updateClassSchedule = async () => {
+    const db = getFirestore();
+    const classCollectionRef = collection(db, "classes");
+
+    try {
+        const classSnapshot = await getDocs(classCollectionRef);
+        const batchUpdates = classSnapshot.docs.map(async (docSnapshot) => {
+            const classRef = doc(db, "classes", docSnapshot.id);
+            const randomSchedule1 = generateRandomSchedule();
+            const randomSchedule2 = generateRandomSchedule();
+
+            return updateDoc(classRef, {
+                schedule: [randomSchedule1, randomSchedule2], // Update the schedule array
+            });
+        });
+
+        await Promise.all(batchUpdates); // Wait for all updates to complete
+        console.log('All class schedules updated successfully');
+    } catch (error) {
+        console.error('Error updating class schedules:', error);
+    }
+};
+
 
 
 

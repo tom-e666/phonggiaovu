@@ -1,18 +1,60 @@
 'use client'
 import React, { useEffect, useState } from "react";
 import { Button, Form, Input, message, Popconfirm, Spin, Table, TableProps, Typography } from "antd";
-import { useAuth } from "@/firebase/initFirebase";
+import {db, useAuth} from "@/firebase/initFirebase";
 import Link from "next/link";
 import Title from "antd/es/typography/Title";
-import { createLecturer, deleteLecturer, readLectures, updateLecturer } from "@/app/lecturer/crud";
-
+import {addDoc, collection, deleteDoc, doc, getDocs, updateDoc} from "@firebase/firestore";
 interface Lecturer {
     lecturerId: string;
     name: string;
     email: string;
 
 }
+ const createLecturer = async (lecturerData: Lecturer) => {
+    try {
+        await addDoc(collection(db, "lecturers"), lecturerData);
+        console.log("Lecturer created successfully");
+    } catch (error) {
+        console.error("Cannot create lecturer", error);
+    }
+};
+const readLectures = async (): Promise<Lecturer[]> => {
+    try {
+        const querySnapshot = await getDocs(collection(db, "lecturers"));
+        return querySnapshot.docs.map(doc => {
+            const data = doc.data();
+            return {
+                lecturerId: doc.id,
+                name: data.name || '',
+                email: data.email || '',
+                classes: data.classes || []
+            };
+        });
+    } catch (error) {
+        console.error("Error reading lecturers", error);
+        return []; // Return an empty array if there's an error
+    }
+};
 
+
+const updateLecturer = async (lecturerId: string, updatedData: Partial<Lecturer>) => {
+    const lecturerRef = doc(db, "lecturers", lecturerId);
+    try {
+        await updateDoc(lecturerRef, updatedData);
+        console.log("Lecturer updated successfully");
+    } catch (error) {
+        console.error("Error updating lecturer: ", error);
+    }
+};
+const deleteLecturer = async (lecturerId: string) => {
+    try {
+        await deleteDoc(doc(db, "lecturers", lecturerId));
+        console.log("Lecturer deleted successfully");
+    } catch (error) {
+        console.error("Error deleting lecturer: ", error);
+    }
+};
 interface EditableCellProps extends React.HTMLAttributes<HTMLElement> {
     editing: boolean;
     dataIndex: string;
@@ -107,7 +149,6 @@ export default function Page() {
         setEditingID(record.lecturerId as string);
     };
 
-    // Cancel editing
     const cancel = () => {
         setEditingID(null);
     };
@@ -126,7 +167,7 @@ export default function Page() {
                 });
                 setData(newData);
                 setEditingID(null);
-                await updateLecturer(lecturerId as string, newData[index]); // Update lecturer in the database
+                await updateLecturer(lecturerId as string, newData[index]);
                 message.success("Lưu thành công");
             }
         } catch (e) {
@@ -153,7 +194,7 @@ export default function Page() {
             title: 'Mã Giảng Viên',
             dataIndex: 'lecturerId',
             width: '20%',
-            editable: true,
+            editable: false,
         },
         {
             title: 'Tên',

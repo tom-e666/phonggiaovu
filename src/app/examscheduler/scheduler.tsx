@@ -211,14 +211,15 @@ const ExamScheduleTable: React.FC<ExamScheduleTableProps> = ({ take }) => {
 
     async function createSchedule() {
         try {
+            message.success(" Đang cập nhật lịch thi.")
             for (const schedule of data) {
                 const scheduleDocRef = doc(collection(db, collectionName), schedule.id);
                 await setDoc(scheduleDocRef, schedule);
             }
             setHasUnsavedChanges(false);
-            alert("Lịch thi đã được lưu thành công!");
+            message.success("Lịch thi đã được lưu thành công!");
         } catch (error) {
-            console.error("Failed to save schedule:", error);
+            message.error("Failed to save schedule:");
         }
     }
 
@@ -230,13 +231,11 @@ const ExamScheduleTable: React.FC<ExamScheduleTableProps> = ({ take }) => {
                 message.error("Không có bản ghi nào để xóa");
                 return;
             }
-
             const batch = writeBatch(db);
             schedulesSnapshot.docs.forEach(scheduleDoc => {
                 const scheduleRef = doc(db, collectionName, scheduleDoc.id);
                 batch.delete(scheduleRef);
             });
-
             await batch.commit();
             setData([]);
             message.success("Xóa thành công");

@@ -11,7 +11,7 @@ import {
     Typography,
     Popconfirm, TableProps
 } from 'antd';
-import { collection, getDocs } from '@firebase/firestore';
+import { collection, getDocs, doc, updateDoc } from '@firebase/firestore';
 import { db } from '@/firebase/initFirebase';
 
 const { Option } = Select;
@@ -23,6 +23,7 @@ interface StudentClass {
     take1: number | null;
     take2: number | null;
 }
+
 // Define the interface for Class
 interface Class {
     id: string;
@@ -30,6 +31,7 @@ interface Class {
     name: string;
     students: StudentClass[];
 }
+
 interface EditableCellProps extends React.HTMLAttributes<HTMLElement> {
     editing: boolean;
     dataIndex: string;
@@ -38,6 +40,7 @@ interface EditableCellProps extends React.HTMLAttributes<HTMLElement> {
     record: StudentClass;
     index: number;
 }
+
 const EditableCell: React.FC<React.PropsWithChildren<EditableCellProps>> = ({
                                                                                 editing,
                                                                                 dataIndex,
@@ -86,6 +89,7 @@ const ExamScoreEntry: React.FC = () => {
                     name: doc.data().name,
                     students: doc.data().students || [],
                 }));
+                console.log('Fetched classes:', classList); // Debugging log
                 setClasses(classList);
             } catch (error) {
                 message.error('Không thể tải danh sách lớp học.');
@@ -102,6 +106,7 @@ const ExamScoreEntry: React.FC = () => {
         const selectedClass = classes.find(cls => cls.id === classId);
         if (selectedClass) {
             setStudents(selectedClass.students);
+            console.log('Selected class students:', selectedClass.students); // Debugging log
         }
     };
 
@@ -168,7 +173,7 @@ const ExamScoreEntry: React.FC = () => {
                         step={0.1}
                         value={record.take1}
                         onChange={(value) => {
-                            if(value===null){
+                            if (value === null) {
                                 return;
                             }
                             if (value !== undefined && (value < 0 || value > 10)) {
@@ -182,7 +187,6 @@ const ExamScoreEntry: React.FC = () => {
                     <span>{record.take1}</span>
                 );
             }
-
         },
         {
             title: 'Điểm Lần 2',
@@ -196,20 +200,20 @@ const ExamScoreEntry: React.FC = () => {
                         min={0}
                         max={10}
                         step={0.1}
-                        value={record.take1}
+                        value={record.take2}
                         onChange={(value) => {
-                            if(value===null){
+                            if (value === null) {
                                 return;
                             }
                             if (value !== undefined && (value < 0 || value > 10)) {
                                 message.error('Điểm phải nằm trong khoảng 0 đến 10.');
                                 return;
                             }
-                            record.take1 = value;
+                            record.take2 = value;
                         }}
                     />
                 ) : (
-                    <span>{record.take1}</span>
+                    <span>{record.take2}</span>
                 );
             }
         },
@@ -282,7 +286,7 @@ const ExamScoreEntry: React.FC = () => {
                             dataSource={students}
                             columns={mergedColumns}
                             rowClassName="editable-row"
-                            pagination={{ pageSize: 5 }}
+                            pagination={{ pageSize: 4 }}
                             rowKey="id"
                         />
                     </Form>

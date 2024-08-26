@@ -4,7 +4,7 @@ import {
     pushCourse,
     pushLecturer,
     pushRoom,
-    PushStudentsButton, UpdateAllStudents,
+    PushStudentsButton, UpdateAllStudents, updateClassSchedule,
     UploadRoomsButton
 } from "@/app/dashboard/mockdata.";
 import {Button} from "antd";
@@ -22,6 +22,8 @@ export default function page()
             <UploadRoomsButton/>
             <PushStudentsButton/>
             <Button style={{marginRight:'10px',marginBottom:'10px'}} onClick={UpdateAllStudents}>update student</Button>
+            <Button style={{marginRight:'10px',marginBottom:'10px'}} onClick={updateClassSchedule}>update class schedule</Button>
+
         </div>
     )
 }

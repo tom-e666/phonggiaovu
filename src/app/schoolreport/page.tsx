@@ -1,14 +1,13 @@
 'use client';
 
-import React, {useEffect, useState} from 'react';
-import {Button, Card, List, Select, Spin, Table, Tag, Typography} from "antd";
-import {db, useAuth} from "@/firebase/initFirebase";
+import React, { useEffect, useState } from 'react';
+import { Button, Card, List, Select, Spin, Table, Tag, Typography, message } from "antd";
+import { db, useAuth } from "@/firebase/initFirebase";
 import Link from "next/link";
 import Title from "antd/es/typography/Title";
-import {collection, doc, getDoc, getDocs, query, where} from '@firebase/firestore';
+import { collection, doc, getDoc, getDocs, query, where } from '@firebase/firestore';
 import { jsPDF } from 'jspdf';
 import 'jspdf-autotable';
-
 
 const { Option } = Select;
 
@@ -59,6 +58,7 @@ async function fetchStudentScores(studentId: string | null, classCode: string): 
     }
     return null;
 }
+
 const SummaryComponent = ({
                               studentScores,
                               coursesData,
@@ -66,9 +66,10 @@ const SummaryComponent = ({
                           }: {
     studentScores: Record<string, StudentScore | null>,
     coursesData: Course[],
-    selectedStudent: string|null,
+    selectedStudent: string | null,
 }) => {
-    if(!selectedStudent) return;
+    if (!selectedStudent) return null;
+
     const totalCredits = 122;
     let completedCredits = 0;
     const missingCourses: Course[] = [];
@@ -160,6 +161,7 @@ const SummaryComponent = ({
         </div>
     );
 };
+
 function Page() {
     const { user, loading } = useAuth();
     const [coursesData, setCoursesData] = useState<Course[]>([]);
@@ -169,6 +171,7 @@ function Page() {
 
     useEffect(() => {
         const loadCourses = async () => {
+            message.loading({ content: 'Đang tải danh sách môn học...', key: 'loadingCourses' });
             try {
                 const courseSnapshot = await getDocs(collection(db, 'courses'));
                 const courses: Course[] = courseSnapshot.docs.map(doc => ({
@@ -178,12 +181,15 @@ function Page() {
                     name: doc.data().name,
                 }));
                 setCoursesData(courses);
+                message.success({ content: 'Tải danh sách môn học thành công!', key: 'loadingCourses', duration: 2 });
             } catch (e) {
+                message.error({ content: 'Tải danh sách môn học thất bại.', key: 'loadingCourses' });
                 console.error('Failed to load courses:', e);
             }
         };
 
         const loadStudents = async () => {
+            message.loading({ content: 'Đang tải danh sách sinh viên...', key: 'loadingStudents' });
             try {
                 const studentSnapshot = await getDocs(collection(db, 'students'));
                 const students: Student[] = studentSnapshot.docs.map(doc => ({
@@ -191,10 +197,13 @@ function Page() {
                     name: doc.data().name,
                 }));
                 setStudents(students);
+                message.success({ content: 'Tải danh sách sinh viên thành công!', key: 'loadingStudents', duration: 2 });
             } catch (e) {
+                message.error({ content: 'Tải danh sách sinh viên thất bại.', key: 'loadingStudents' });
                 console.error('Failed to load students:', e);
             }
         };
+
         loadCourses();
         loadStudents();
     }, []);
@@ -202,11 +211,13 @@ function Page() {
     useEffect(() => {
         const fetchAllScores = async () => {
             if (!selectedStudent) return;
+            message.loading({ content: 'Đang tải điểm sinh viên...', key: 'loadingScores' });
             const newScores: Record<string, StudentScore | null> = {};
             for (const record of coursesData) {
                 newScores[record.code] = await fetchStudentScores(selectedStudent, record.code);
             }
             setStudentScores(newScores);
+            message.success({ content: 'Tải điểm sinh viên thành công!', key: 'loadingScores', duration: 2 });
         };
 
         fetchAllScores();
@@ -217,7 +228,7 @@ function Page() {
     };
 
     if (loading) {
-        return <Spin size="large" />
+        return <Spin size="large" />;
     }
 
     if (!user) {
@@ -234,7 +245,7 @@ function Page() {
                     <a><Button type="primary" size="large">Đăng nhập</Button></a>
                 </Link>
             </div>
-        )
+        );
     }
 
     const columns = [
@@ -246,7 +257,7 @@ function Page() {
         {
             title: 'Tên',
             dataIndex: 'name',
-            width: '10%',
+            width: '20%',
         },
         {
             title: 'Số tín chỉ',
@@ -267,7 +278,7 @@ function Page() {
             title: 'Điểm thi',
             width: '10%',
             render: (_: any, record: Course) => {
-                const studentScore = studentScores[record.code];  // Sử dụng mã lớp để lấy điểm thi từ studentScores
+                const studentScore = studentScores[record.code];
                 if (studentScore) {
                     const highestScore = Math.max(studentScore.take1 ?? 0, studentScore.take2 ?? 0);
                     const color = highestScore >= 5 ? 'green' : 'red';
@@ -280,11 +291,11 @@ function Page() {
                     return <Tag color="gray">Không tìm thấy</Tag>;
                 }
             },
-        }
+        },
     ];
 
     return (
-        <div style={{ width: '100%', height: '100%' }}>
+        <div style={{ width: '100%', height: '100%', overflow: "auto" }}>
             <div style={{ marginBottom: '20px' }}>
                 <Typography.Text strong>Chọn sinh viên: </Typography.Text>
                 <Select
@@ -311,9 +322,15 @@ function Page() {
                 pagination={{ pageSize: 10 }}
                 scroll={{ y: 'calc(100vh - 300px)' }}
             />
-            <SummaryComponent studentScores={studentScores} coursesData={coursesData} selectedStudent={selectedStudent} />
-            <div>content?</div>
+            {selectedStudent && (
+                <SummaryComponent
+                    studentScores={studentScores}
+                    coursesData={coursesData}
+                    selectedStudent={selectedStudent}
+                />
+            )}
         </div>
-    )
+    );
 }
+
 export default Page;

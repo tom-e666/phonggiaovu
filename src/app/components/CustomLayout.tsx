@@ -4,12 +4,12 @@ import {
     MenuFoldOutlined, MenuUnfoldOutlined,
     HomeOutlined, InfoCircleOutlined,
     UserOutlined, TeamOutlined,
-    BookOutlined, CalendarOutlined,
-    CheckCircleOutlined, LoginOutlined,
-    FileSearchOutlined
+    BookOutlined, DashboardOutlined,
+    CalendarOutlined, CheckCircleOutlined,
+    LoginOutlined, FileSearchOutlined
 } from '@ant-design/icons';
-import { Button, Layout, Menu, theme, Image } from 'antd';
-import { AuthProvider } from "@/firebase/initFirebase";
+import {Button, Layout, Menu, theme, Image} from 'antd';
+import {AuthProvider} from "@/firebase/initFirebase";
 import Link from "next/link";
 
 const { Header, Sider, Content } = Layout;
@@ -19,7 +19,7 @@ const menuItems = [
         key: '1',
         icon: <HomeOutlined />,
         label: (
-            <Link href={"/"} passHref prefetch={true}>
+            <Link href={"/"} passHref  prefetch={true}>
                 Trang Chủ
             </Link>
         ),
@@ -28,7 +28,7 @@ const menuItems = [
         key: '2',
         icon: <InfoCircleOutlined />,
         label: (
-            <Link href={"/about"} passHref prefetch={true}>
+            <Link href={"/about"} passHref  prefetch={true}>
                 Giới Thiệu
             </Link>
         ),
@@ -82,11 +82,20 @@ const menuItems = [
         key: '8',
         icon: <CheckCircleOutlined />,
         label: (
-            <Link href={"/eligibilitycheckview"} passHref>
+            <Link href={"/schoolreport"} passHref>
                 Học bạ
             </Link>
         ),
     },
+    // {
+    //     key: '9',
+    //     icon: <DashboardOutlined />,
+    //     label: (
+    //         <Link href={"/dashboard"} passHref>
+    //             Bảng Điều Khiển
+    //         </Link>
+    //     ),
+    // },
     {
         key: '9',
         icon: <LoginOutlined />,
@@ -110,7 +119,7 @@ const CustomLayout: React.FC<CustomLayoutProps> = ({ children }) => {
 
     return (
         <AuthProvider>
-            <Layout style={{ height: '100vh', overflow: 'hidden' }}>
+            <Layout style={{ minHeight: '100vh' }}>
                 <Sider collapsible collapsed={collapsed} onCollapse={setCollapsed}>
                     <div className="demo-logo-vertical" />
                     <Menu
@@ -149,6 +158,8 @@ const CustomLayout: React.FC<CustomLayoutProps> = ({ children }) => {
                             margin: '24px 16px',
                             background: colorBgContainer,
                             borderRadius: borderRadiusLG,
+                            flex: 1,
+                            overflow: 'auto',
                         }}
                     >
                         {children}
@@ -156,6 +167,7 @@ const CustomLayout: React.FC<CustomLayoutProps> = ({ children }) => {
                 </Layout>
             </Layout>
         </AuthProvider>
+
     );
 };
 

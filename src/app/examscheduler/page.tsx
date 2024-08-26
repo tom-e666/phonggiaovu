@@ -2,9 +2,6 @@
 
 import React, { useEffect, useState } from 'react';
 import { Button, Form, Input, InputNumber, Popconfirm, Spin, Table, TableProps, Typography } from "antd";
-import { useAuth } from "@/firebase/initFirebase";
-import Link from "next/link";
-import Title from "antd/es/typography/Title";
 import CoursesTable from "@/app/examscheduler/initialView";
 import ExamScheduleTable from "@/app/examscheduler/scheduler";
 
@@ -80,12 +77,19 @@ function Page() {
                 return "Lỗi";
         }
     };
-
     return (
         <>
-            <Button type="primary" onClick={() => { setGridContent((gridContent + 1) % 3); }}>
-                Chuyển view
-            </Button>
+            <div style={{ marginBottom: "16px" }}>
+                <Button type="primary" onClick={() => setGridContent(0)} style={{ marginRight: "8px" }}>
+                    Danh sách môn học
+                </Button>
+                <Button type="primary" onClick={() => setGridContent(1)} style={{ marginRight: "8px" }}>
+                    Lịch thi lần 1
+                </Button>
+                <Button type="primary" onClick={() => setGridContent(2)}>
+                    Lịch thi lần 2
+                </Button>
+            </div>
             <div style={{ margin: "16px 0", fontWeight: "bold" }}>
                 {getCurrentViewLabel()}
             </div>
