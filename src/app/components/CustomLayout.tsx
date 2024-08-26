@@ -4,12 +4,12 @@ import {
     MenuFoldOutlined, MenuUnfoldOutlined,
     HomeOutlined, InfoCircleOutlined,
     UserOutlined, TeamOutlined,
-    BookOutlined, DashboardOutlined,
-    CalendarOutlined, CheckCircleOutlined,
-    LoginOutlined, FileSearchOutlined
+    BookOutlined, CalendarOutlined,
+    CheckCircleOutlined, LoginOutlined,
+    FileSearchOutlined
 } from '@ant-design/icons';
-import {Button, Layout, Menu, theme, Image} from 'antd';
-import {AuthProvider} from "@/firebase/initFirebase";
+import { Button, Layout, Menu, theme, Image } from 'antd';
+import { AuthProvider } from "@/firebase/initFirebase";
 import Link from "next/link";
 
 const { Header, Sider, Content } = Layout;
@@ -19,7 +19,7 @@ const menuItems = [
         key: '1',
         icon: <HomeOutlined />,
         label: (
-            <Link href={"/"} passHref  prefetch={true}>
+            <Link href={"/"} passHref prefetch={true}>
                 Trang Chủ
             </Link>
         ),
@@ -28,7 +28,7 @@ const menuItems = [
         key: '2',
         icon: <InfoCircleOutlined />,
         label: (
-            <Link href={"/about"} passHref  prefetch={true}>
+            <Link href={"/about"} passHref prefetch={true}>
                 Giới Thiệu
             </Link>
         ),
@@ -87,15 +87,6 @@ const menuItems = [
             </Link>
         ),
     },
-    // {
-    //     key: '9',
-    //     icon: <DashboardOutlined />,
-    //     label: (
-    //         <Link href={"/dashboard"} passHref>
-    //             Bảng Điều Khiển
-    //         </Link>
-    //     ),
-    // },
     {
         key: '9',
         icon: <LoginOutlined />,
@@ -119,7 +110,7 @@ const CustomLayout: React.FC<CustomLayoutProps> = ({ children }) => {
 
     return (
         <AuthProvider>
-            <Layout style={{ height: '100vh', overflow:'hidden' }}>
+            <Layout style={{ height: '100vh', overflow: 'hidden' }}>
                 <Sider collapsible collapsed={collapsed} onCollapse={setCollapsed}>
                     <div className="demo-logo-vertical" />
                     <Menu
@@ -129,9 +120,9 @@ const CustomLayout: React.FC<CustomLayoutProps> = ({ children }) => {
                         items={menuItems}
                     />
                 </Sider>
-                <Layout style={{ height: '100vh', overflow:'hidden' }}>
-                    <Header style={{ padding: 0, background: colorBgContainer, overflow:'hidden' }}>
-                        <div style={{ display: "flex", alignItems: 'center', overflow:'hidden' }}>
+                <Layout>
+                    <Header style={{ padding: 0, background: colorBgContainer }}>
+                        <div style={{ display: "flex", alignItems: 'center' }}>
                             <Button
                                 style={{ width: '64px', height: '64px' }}
                                 onClick={() => setCollapsed(!collapsed)}
@@ -158,9 +149,6 @@ const CustomLayout: React.FC<CustomLayoutProps> = ({ children }) => {
                             margin: '24px 16px',
                             background: colorBgContainer,
                             borderRadius: borderRadiusLG,
-                            height: '100vh',
-                            overflow:'hidden',
-                            flexGrow: 1,
                         }}
                     >
                         {children}
