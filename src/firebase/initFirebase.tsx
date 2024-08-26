@@ -3,13 +3,8 @@
 // https://firebase.google.com/docs/web/setup#available-libraries
 import {initializeApp} from "firebase/app";
 import {
-    browserLocalPersistence,
-    createUserWithEmailAndPassword,
     getAuth,
     onAuthStateChanged,
-    setPersistence,
-    signInWithEmailAndPassword,
-    signOut,
     User
 } from "firebase/auth";
 import 'firebase/firestore';
@@ -19,6 +14,8 @@ import React, {ReactNode, useContext, useEffect} from "react";
 import {useRouter} from "next/router";
 import {router} from "next/client";
 import {getFirestore} from "@firebase/firestore";
+import {Spin} from "antd";
+import {LoadingOutlined} from "@ant-design/icons";
 // Your web app's Firebase configuration
 // For Firebase JS SDK v7.20.0 and later, measurementId is optional
 const firebaseConfig = {
@@ -68,13 +65,13 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     }, []);
         if(loading){
             return (
-                <>
-                loading animation, stacked and performed later;
-                </>
+                <div style={{display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh'}}>
+                    <Spin indicator={<LoadingOutlined style={{ fontSize: 40 }} spin />}/>
+                </div>
             )
         }
     return (
-        <AuthContext.Provider value={{ user, loading }}>
+        <AuthContext.Provider value={{user, loading}}>
             {children}
         </AuthContext.Provider>
     );

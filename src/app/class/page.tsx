@@ -1,12 +1,34 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
+import React, {useEffect, useState} from 'react';
 import {Button, Form, Input, InputNumber, Popconfirm, Spin, Table, TableProps, Typography} from "antd";
-import {useAuth} from "@/firebase/initFirebase";
+import {db, useAuth} from "@/firebase/initFirebase";
 import Link from "next/link";
+import {collection, getDocs} from "@firebase/firestore";
 import Title from "antd/es/typography/Title";
-import {Class, retrieveClasses} from "@/app/class/crud";
 
+interface StudentClass {
+    id: string;
+    name: string;
+    take1: number | null;
+    take2: number | null;
+}
+
+interface Class {
+    id: string;
+    code: string;
+    name: string;
+    term: string;
+    year: number;
+    lecturer?: string;
+    lecturerID?: string;
+    location?: string;
+    schedule?: string[];
+    description?: string;
+    prerequisites?: string;
+    capacity: number;
+    students: StudentClass[];
+}
 
 interface EditableCellProps extends React.HTMLAttributes<HTMLElement> {
     editing: boolean;
@@ -16,6 +38,7 @@ interface EditableCellProps extends React.HTMLAttributes<HTMLElement> {
     record: Class;
     index: number;
 }
+
 const EditableCell: React.FC<React.PropsWithChildren<EditableCellProps>> = ({
                                                                                 editing,
                                                                                 dataIndex,
@@ -44,12 +67,36 @@ const EditableCell: React.FC<React.PropsWithChildren<EditableCellProps>> = ({
                 children
             )}
         </td>
-    )
+    );
+};
+
+const retrieveClasses = async (): Promise<Class[]> => {
+    try {
+        const classCollection = collection(db, 'classes');
+        const classSnapshot = await getDocs(classCollection);
+        return classSnapshot.docs.map(doc => ({
+            id: doc.id,
+            code: doc.data().code,
+            name: doc.data().name,
+            term: doc.data().term,
+            year: doc.data().year,
+            lecturer: doc.data().lecturer,
+            lecturerID: doc.data().lecturerID,
+            location: doc.data().location,
+            schedule: doc.data().schedule || [],
+            description: doc.data().description,
+            prerequisites: doc.data().prerequisites,
+            capacity: doc.data().capacity,
+            students: doc.data().students || []
+        }));
+    } catch (error) {
+        console.error("Failed to retrieve classes:", error);
+        return [];
+    }
 };
 
 function Page() {
     const { user, loading } = useAuth();
-
     const [form] = Form.useForm();
     const [data, setData] = useState<Class[]>([]);
     const [editingID, setEditingID] = useState<string | null>(null);
@@ -158,8 +205,7 @@ function Page() {
             dataIndex: 'schedule',
             width: '15%',
             editable: false,
-            //render: (schedule: string[] | undefined) => schedule ? schedule.join(', ') : 'N/A',
-            render: (schedule: string[] | undefined) => 'Lịch học',
+            render: (schedule: string[] | undefined) => schedule ? schedule.join(', ') : 'N/A',
         },
         {
             title: 'Thao tác',
@@ -220,7 +266,7 @@ function Page() {
                 />
             </Form>
         </div>
-    )
+    );
 }
 
 export default Page;

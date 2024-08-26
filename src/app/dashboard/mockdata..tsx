@@ -1,5 +1,5 @@
 'use client'
-import {addDoc, collection, doc, setDoc, writeBatch} from "@firebase/firestore";
+import {addDoc, collection, doc, getDocs, setDoc, writeBatch} from "@firebase/firestore";
 import {db} from "@/firebase/initFirebase";
 import {Button, message} from "antd";
 
@@ -1028,7 +1028,7 @@ export const UploadRoomsButton: React.FC = () => {
     };
 
     return (
-        <Button type="primary" onClick={uploadRooms}>
+        <Button style={{marginRight:'10px',marginBottom:'10px'}} type="primary" onClick={uploadRooms}>
             Thêm Phòng Vào Cơ Sở Dữ Liệu
         </Button>
     );
@@ -1373,7 +1373,7 @@ export const PushStudentsButton = () => {
 
     return (
         <div>
-            <Button type="primary" onClick={handlePushStudents}>
+            <Button style={{marginRight:'10px',marginBottom:'10px'}} type="primary" onClick={handlePushStudents}>
                 push Student
             </Button>
         </div>
@@ -1496,6 +1496,42 @@ export const pushClasses = async () => {
         console.log("Failed to add class data", e);
     }
 };
+const genderTranslation: { [key: string]: string } = {
+    male: "Nam",
+    female: "Nữ",
+};
+
+const facultyTranslation: { [key: string]: string } = {
+    "Information Technology": "Công nghệ thông tin",
+};
+export const UpdateAllStudents = async () => {
+        try {
+            const batch = writeBatch(db);  // Initialize a batch operation
+            const studentCollection = collection(db, "students");
+            const studentSnapshot = await getDocs(studentCollection);
+
+            studentSnapshot.docs.forEach((docSnapshot) => {
+                const studentData = docSnapshot.data();
+
+                // Translate gender and faculty fields
+                const updatedGender = genderTranslation[studentData.gender] || studentData.gender;
+                const updatedFaculty = facultyTranslation[studentData.faculty] || studentData.faculty;
+                // Create a reference to the document
+                const studentRef = doc(db, "students", docSnapshot.id);
+                // Batch the update operation
+                batch.update(studentRef, {
+                    gender: updatedGender,
+                    faculty: updatedFaculty,
+                });
+            });
+            await batch.commit();
+            console.log("All students updated successfully.");
+
+        } catch (error) {
+            console.error("Failed to update students:", error);
+        }
+};
+
 
 
 

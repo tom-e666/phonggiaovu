@@ -2,7 +2,7 @@ import Image from 'next/image';
 import React from "react";
 
 const Page=()=>(
-    <>
+    <div style={{overflow:"hidden"}}>
         <Image src={'/bgi.png'} alt={'University of Education'} style={{float: 'right'}} width={800} height={500}/>
         <h1 style={{color: '#2c3e50', fontWeight: 'bold', textAlign: 'center'}}>
             Trang web chính thức của Phòng Giáo Vụ Trường Đại học Sư phạm TP.HCM
@@ -19,6 +19,6 @@ const Page=()=>(
             góp phần quan trọng vào sự phát triển bền vững của xã hội.
         </p>
 
-    </>
+    </div>
 )
 export default Page

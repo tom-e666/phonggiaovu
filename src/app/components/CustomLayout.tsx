@@ -19,7 +19,7 @@ const menuItems = [
         key: '1',
         icon: <HomeOutlined />,
         label: (
-            <Link href={"/"} passHref>
+            <Link href={"/"} passHref  prefetch={true}>
                 Trang Chủ
             </Link>
         ),
@@ -28,7 +28,7 @@ const menuItems = [
         key: '2',
         icon: <InfoCircleOutlined />,
         label: (
-            <Link href={"/about"} passHref>
+            <Link href={"/about"} passHref  prefetch={true}>
                 Giới Thiệu
             </Link>
         ),
@@ -73,8 +73,8 @@ const menuItems = [
         key: '7',
         icon: <FileSearchOutlined />,
         label: (
-            <Link href={"/examattempt"} passHref>
-                Kỳ Thi
+            <Link href={"/scoremanagement"} passHref>
+                Điểm thi
             </Link>
         ),
     },
@@ -83,21 +83,21 @@ const menuItems = [
         icon: <CheckCircleOutlined />,
         label: (
             <Link href={"/eligibilitycheckview"} passHref>
-                Xuất học bạ
+                Học bạ
             </Link>
         ),
     },
+    // {
+    //     key: '9',
+    //     icon: <DashboardOutlined />,
+    //     label: (
+    //         <Link href={"/dashboard"} passHref>
+    //             Bảng Điều Khiển
+    //         </Link>
+    //     ),
+    // },
     {
         key: '9',
-        icon: <DashboardOutlined />,
-        label: (
-            <Link href={"/dashboard"} passHref>
-                Bảng Điều Khiển
-            </Link>
-        ),
-    },
-    {
-        key: '10',
         icon: <LoginOutlined />,
         label: (
             <Link href={"/login"} passHref>
@@ -119,7 +119,7 @@ const CustomLayout: React.FC<CustomLayoutProps> = ({ children }) => {
 
     return (
         <AuthProvider>
-            <Layout style={{ height: '100vh' }}>
+            <Layout style={{ height: '100vh', overflow:'hidden' }}>
                 <Sider collapsible collapsed={collapsed} onCollapse={setCollapsed}>
                     <div className="demo-logo-vertical" />
                     <Menu
@@ -129,9 +129,9 @@ const CustomLayout: React.FC<CustomLayoutProps> = ({ children }) => {
                         items={menuItems}
                     />
                 </Sider>
-                <Layout>
-                    <Header style={{ padding: 0, background: colorBgContainer }}>
-                        <div style={{ display: "flex", alignItems: 'center' }}>
+                <Layout style={{ height: '100vh', overflow:'hidden' }}>
+                    <Header style={{ padding: 0, background: colorBgContainer, overflow:'hidden' }}>
+                        <div style={{ display: "flex", alignItems: 'center', overflow:'hidden' }}>
                             <Button
                                 style={{ width: '64px', height: '64px' }}
                                 onClick={() => setCollapsed(!collapsed)}
@@ -159,7 +159,7 @@ const CustomLayout: React.FC<CustomLayoutProps> = ({ children }) => {
                             background: colorBgContainer,
                             borderRadius: borderRadiusLG,
                             height: '100vh',
-                            overflow:"auto",
+                            overflow:'hidden',
                             flexGrow: 1,
                         }}
                     >

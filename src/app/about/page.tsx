@@ -2,7 +2,7 @@ import {Button, Space, DatePicker, version} from "antd";
 import {FaReact} from "react-icons/fa";
 import {SiTypescript,SiNextdotjs} from "react-icons/si";
 const Page =()=> (
-    <div>
+    <div style={{overflow:'hidden',overflowY:'hidden'}}>
         <h1>Hệ thống thông tin dành cho phòng giáo vụ</h1>
         <p>Được phát triển dựa trên React, TypeScript và Next.Js</p>
         <p> Thông tin chi tiết vui lòng liên hệ <a href={'tom@gmail.com'}>tom@gmail.com</a></p>

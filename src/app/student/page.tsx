@@ -48,7 +48,11 @@ const EditableCell: React.FC<React.PropsWithChildren<EditableCellProps>> = ({
                     rules={[{
                         required: true,
                         message: `Vui lòng nhập ${title}!`,
-                    }]}
+                    },
+                        dataIndex === 'birth' ? {
+                            pattern: /^(0[1-9]|[12][0-9]|3[01])\/(0[1-9]|1[0-2])\/\d{4}$/,
+                            message: 'Ngày Sinh phải theo định dạng dd/mm/yyyy!',
+                        } : {}]}
                 >
                     {inputNode}
                 </Form.Item>
