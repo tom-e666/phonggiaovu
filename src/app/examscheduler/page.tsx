@@ -4,6 +4,9 @@ import React, { useEffect, useState } from 'react';
 import { Button, Form, Input, InputNumber, Popconfirm, Spin, Table, TableProps, Typography } from "antd";
 import CoursesTable from "@/app/examscheduler/initialView";
 import ExamScheduleTable from "@/app/examscheduler/scheduler";
+import Title from "antd/es/typography/Title";
+import Link from "next/link";
+import {useAuth} from "@/firebase/initFirebase";
 
 interface ExamRoom {
     roomId: string;
@@ -63,8 +66,8 @@ const EditableCell: React.FC<React.PropsWithChildren<EditableCellProps>> = ({
     )
 };
 function Page() {
+    const { user, loading } = useAuth();
     const [gridContent, setGridContent] = useState(0);
-
     const getCurrentViewLabel = () => {
         switch (gridContent) {
             case 0:
@@ -77,7 +80,26 @@ function Page() {
                 return "Lỗi";
         }
     };
-    return (
+    if (loading) {
+        return <Spin size="large" />;
+    }
+
+    if (!user) {
+        return (
+            <div style={{
+                display: 'flex',
+                flexDirection: 'column',
+                justifyContent: 'center',
+                alignItems: 'center',
+                textAlign: 'center',
+            }}>
+                <Title level={2} style={{ marginBottom: '24px', color: '#1677ff' }}>Vui lòng đăng nhập trước khi truy cập nội dung</Title>
+                <Link href="/login" passHref>
+                    <Button type="primary" size="large">Đăng nhập</Button>
+                </Link>
+            </div>
+        );
+    }    return (
         <>
             <div style={{ marginBottom: "16px" }}>
                 <Button type="primary" onClick={() => setGridContent(0)} style={{ marginRight: "8px" }}>

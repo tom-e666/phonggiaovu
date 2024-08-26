@@ -8,12 +8,10 @@ import {
     CalendarOutlined, CheckCircleOutlined,
     LoginOutlined, FileSearchOutlined
 } from '@ant-design/icons';
-import {Button, Layout, Menu, theme, Image} from 'antd';
-import {AuthProvider} from "@/firebase/initFirebase";
+import {Button, Layout, Menu, theme, Image, message} from 'antd';
+import app, {AuthProvider} from "@/firebase/initFirebase";
 import Link from "next/link";
-
 const { Header, Sider, Content } = Layout;
-
 const menuItems = [
     {
         key: '1',
@@ -87,15 +85,6 @@ const menuItems = [
             </Link>
         ),
     },
-    // {
-    //     key: '9',
-    //     icon: <DashboardOutlined />,
-    //     label: (
-    //         <Link href={"/dashboard"} passHref>
-    //             Bảng Điều Khiển
-    //         </Link>
-    //     ),
-    // },
     {
         key: '9',
         icon: <LoginOutlined />,

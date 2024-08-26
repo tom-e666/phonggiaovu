@@ -181,9 +181,7 @@ function Page() {
                     name: doc.data().name,
                 }));
                 setCoursesData(courses);
-                message.success({ content: 'Tải danh sách môn học thành công!', key: 'loadingCourses', duration: 2 });
             } catch (e) {
-                message.error({ content: 'Tải danh sách môn học thất bại.', key: 'loadingCourses' });
                 console.error('Failed to load courses:', e);
             }
         };
@@ -227,26 +225,6 @@ function Page() {
         setSelectedStudent(value);
     };
 
-    if (loading) {
-        return <Spin size="large" />;
-    }
-
-    if (!user) {
-        return (
-            <div style={{
-                display: 'flex',
-                flexDirection: 'column',
-                justifyContent: 'center',
-                alignItems: 'center',
-                textAlign: 'center',
-            }}>
-                <Title level={2} style={{ marginBottom: '24px', color: '#1677ff' }}>Vui lòng đăng nhập trước khi truy cập nội dung</Title>
-                <Link href="/login" passHref>
-                    <a><Button type="primary" size="large">Đăng nhập</Button></a>
-                </Link>
-            </div>
-        );
-    }
 
     const columns = [
         {
@@ -293,7 +271,26 @@ function Page() {
             },
         },
     ];
+    if (loading) {
+        return <Spin size="large" />;
+    }
 
+    if (!user) {
+        return (
+            <div style={{
+                display: 'flex',
+                flexDirection: 'column',
+                justifyContent: 'center',
+                alignItems: 'center',
+                textAlign: 'center',
+            }}>
+                <Title level={2} style={{ marginBottom: '24px', color: '#1677ff' }}>Vui lòng đăng nhập trước khi truy cập nội dung</Title>
+                <Link href="/login" passHref>
+                    <Button type="primary" size="large">Đăng nhập</Button>
+                </Link>
+            </div>
+        );
+    }
     return (
         <div style={{ width: '100%', height: '100%', overflow: "auto" }}>
             <div style={{ marginBottom: '20px' }}>

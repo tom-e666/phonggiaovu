@@ -7,16 +7,17 @@ import {
     browserSessionPersistence,
     getAuth,
     setPersistence,
-    signInWithEmailAndPassword, signOut
+    signInWithEmailAndPassword,
+    signOut
 } from "firebase/auth";
 import app from "@/firebase/initFirebase";
-
 
 type FieldType = {
     email?: string,
     password?: string,
     remember?: boolean,
 }
+
 const onFinish: FormProps<FieldType>['onFinish'] = async ({ email, password, remember }) => {
     if (email && password) {
         try {
@@ -24,86 +25,87 @@ const onFinish: FormProps<FieldType>['onFinish'] = async ({ email, password, rem
             const persistence = remember ? browserLocalPersistence : browserSessionPersistence;
             await setPersistence(auth, persistence);
             const userCredential = await signInWithEmailAndPassword(auth, email, password);
-            console.log('Authentication success', userCredential);
-            message.success('Authentication successful. Redirecting to the home page...');
+            console.log('Đăng nhập thành công', userCredential);
+            message.success('Đăng nhập thành công. Đang chuyển đến trang chủ...');
         } catch (e) {
-            console.error('Authentication failed', e);
-            message.error('Authentication failed. Please check your credentials.');
+            console.error('Đăng nhập thất bại', e);
+            message.error('Đăng nhập thất bại. Vui lòng kiểm tra lại thông tin đăng nhập.');
         }
     } else {
-        message.error('email and password are required!');
+        message.error('Email và mật khẩu là bắt buộc!');
     }
 };
 
 const onFinishFailed: FormProps<FieldType>['onFinishFailed'] = (formProps) => {
-    console.log('Authentication failed!', formProps);
-    message.error('Please complete the form correctly.');
+    console.log('Đăng nhập thất bại!', formProps);
+    message.error('Vui lòng điền đầy đủ thông tin.');
 }
-const LogoutButton=()=>{
+
+const LogoutButton = () => {
     const auth = getAuth(app);
-    const handleLogout= async ()=>{
-        try{
+    const handleLogout = async () => {
+        try {
             await signOut(auth);
-            message.success('Logged out successfully');
-        }catch (e){
-            message.error('Failed to log out');
+            message.success('Đăng xuất thành công');
+        } catch (e) {
+            message.error('Đăng xuất thất bại');
         }
     }
-    return <Button
-        type="primary"
-        onClick={handleLogout}
-    >Logout</Button>
+    return (
+        <Button
+            type="primary"
+            onClick={handleLogout}
+            style={{ marginTop: '20px' }} // Added margin to separate the logout button
+        >
+            Đăng xuất
+        </Button>
+    );
 }
+
 export default function Page() {
     return (
-        <>
-            <Form
-                name="authentication form"
-                labelCol={{ span: 8 }}
-                wrapperCol={{ span: 16 }}
-                style={{ maxWidth: 800 }}
-                initialValues={{ remember: true }}
-                onFinish={onFinish}
-                onFinishFailed={onFinishFailed}
-                autoComplete="off"
-            >
-                <Form.Item<FieldType>
-                    label="Email"
-                    name="email"
-                    rules={[
-                        { required: true, message: "Please input your email!" },
-                        { type: 'email', message: 'The input is not a valid email!' } // Ensures username is a valid email
-                    ]}
+        <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center',}}>
+            <div style={{ width: '100%',maxWidth:'600px', padding: '20px', backgroundColor: '#f7f7f7', borderRadius: '8px', boxShadow: '0 0 10px rgba(0,0,0,0.1)' }}>
+                <Form
+                    name="authentication form"
+                    layout="vertical"
+                    initialValues={{ remember: true }}
+                    onFinish={onFinish}
+                    onFinishFailed={onFinishFailed}
+                    autoComplete="off"
                 >
-                    <Input placeholder="Enter your email" />
-                </Form.Item>
-                <Form.Item<FieldType>
-                    label="Password"
-                    name="password"
-                    rules={[
-                        { required: true, message: "Please input your password!" },
-                        { min: 6, message: 'Password must be at least 6 characters long!' } // Ensures a minimum password length
-                    ]}
-                >
-                    <Input.Password placeholder="Enter your password" />
-                </Form.Item>
-                <Form.Item<FieldType>
-                    name="remember"
-                    valuePropName="checked"
-                    wrapperCol={{ offset: 8, span: 16 }}
-                >
-                    <Checkbox>Remember me</Checkbox>
-                </Form.Item>
-                <Form.Item
-                    wrapperCol={{ offset: 8, span: 16 }}
-                >
-                    <Button type="primary" htmlType="submit">Submit</Button>
-                </Form.Item>
-            </Form>
-            <LogoutButton/>
-            <p>aa@gmail.com</p>
-            <p>aaaaaa</p>
-
-        </>
+                    <Form.Item<FieldType>
+                        label="Email"
+                        name="email"
+                        rules={[
+                            { required: true, message: "Vui lòng nhập email!" },
+                            { type: 'email', message: 'Email không hợp lệ!' }
+                        ]}
+                    >
+                        <Input placeholder="Nhập email của bạn" />
+                    </Form.Item>
+                    <Form.Item<FieldType>
+                        label="Mật khẩu"
+                        name="password"
+                        rules={[
+                            { required: true, message: "Vui lòng nhập mật khẩu!" },
+                            { min: 6, message: 'Mật khẩu phải có ít nhất 6 ký tự!' }
+                        ]}
+                    >
+                        <Input.Password placeholder="Nhập mật khẩu của bạn" />
+                    </Form.Item>
+                    <Form.Item<FieldType>
+                        name="remember"
+                        valuePropName="checked"
+                    >
+                        <Checkbox>Ghi nhớ đăng nhập</Checkbox>
+                    </Form.Item>
+                    <Form.Item>
+                        <Button type="primary" htmlType="submit" style={{ width: '100%' }}>Đăng nhập</Button>
+                    </Form.Item>
+                </Form>
+                <LogoutButton />
+            </div>
+        </div>
     )
 }

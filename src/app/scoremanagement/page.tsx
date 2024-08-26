@@ -12,7 +12,9 @@ import {
     Popconfirm, TableProps
 } from 'antd';
 import { collection, getDocs, doc, updateDoc } from '@firebase/firestore';
-import { db } from '@/firebase/initFirebase';
+import {db, useAuth} from '@/firebase/initFirebase';
+import Title from "antd/es/typography/Title";
+import Link from "next/link";
 
 const { Option } = Select;
 
@@ -75,12 +77,13 @@ const ExamScoreEntry: React.FC = () => {
     const [selectedClassId, setSelectedClassId] = useState<string | null>(null);
     const [students, setStudents] = useState<StudentClass[]>([]);
     const [editingID, setEditingID] = useState<string | null>(null);
-    const [loading, setLoading] = useState(false);
+    const [loadingTable, setLoadingTable] = useState(false);
+    const { user, loading } = useAuth();
 
     // Fetch classes from the database
     useEffect(() => {
         const fetchClasses = async () => {
-            setLoading(true);
+            setLoadingTable(true);
             try {
                 const classSnapshot = await getDocs(collection(db, 'classes'));
                 const classList: Class[] = classSnapshot.docs.map((doc) => ({
@@ -94,7 +97,7 @@ const ExamScoreEntry: React.FC = () => {
             } catch (error) {
                 message.error('Không thể tải danh sách lớp học.');
             } finally {
-                setLoading(false);
+                setLoadingTable(false);
             }
         };
         fetchClasses();
@@ -255,11 +258,30 @@ const ExamScoreEntry: React.FC = () => {
             }),
         };
     });
+    if (loading) {
+        return <Spin size="large" />;
+    }
 
+    if (!user) {
+        return (
+            <div style={{
+                display: 'flex',
+                flexDirection: 'column',
+                justifyContent: 'center',
+                alignItems: 'center',
+                textAlign: 'center',
+            }}>
+                <Title level={2} style={{ marginBottom: '24px', color: '#1677ff' }}>Vui lòng đăng nhập trước khi truy cập nội dung</Title>
+                <Link href="/login" passHref>
+                    <Button type="primary" size="large">Đăng nhập</Button>
+                </Link>
+            </div>
+        );
+    }
     return (
         <div>
             <Typography.Title level={2}>Nhập Điểm Kỳ Thi</Typography.Title>
-            {loading ? (
+            {loadingTable ? (
                 <Spin size="large" />
             ) : (
                 <>
