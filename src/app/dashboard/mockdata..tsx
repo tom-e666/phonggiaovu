@@ -1007,6 +1007,12 @@ export const pushRoom=async ()=>{
         console.log('add document failed',error);
     }
 }
+interface StudentClass {
+    id: string;
+    name: string;
+    take1: number | null;
+    take2: number | null;
+}
 interface Class  {
     id: string;
     code:string;
@@ -1020,7 +1026,10 @@ interface Class  {
     description?: string;
     prerequisites?:string;
     capacity?:number;
+    students?: StudentClass[];
 }
+
+
 const classes:Class[]=[];
 for (const course of courses) {
     classes.push({
@@ -1094,6 +1103,173 @@ export const UploadRoomsButton: React.FC = () => {
         </Button>
     );
 };
+const maleNames = [
+    "Nguyễn Quốc Hùng",
+    "Trần Văn Toán",
+    "Phạm Hùng Vĩ",
+    "Đinh Đệ",
+    "Vũ Đức Vinh",
+    "Lộ Hà Đức Lâm",
+    "Võ Văn Công",
+    "Nguyễn Ngọc Thanh Long",
+    "Đào Tiến Lâm",
+    "Nguyễn Hữu Tiến Đạt",
+    "Hoàng Trần Ngọc Vinh",
+    "Nguyễn Tấn Hải",
+    "Trần Văn Vinh",
+    "Nguyễn Thiên Phúc",
+    "Nguyễn Tuấn Khanh",
+    "Lưu Minh Cây",
+    "Nguyễn Trần Thái Duy",
+    "Phan Đức Huy",
+    "Phan Văn Lực",
+    "Trần Quang Đạo",
+    "Nguyễn Nhật Anh",
+    "Phan Văn Lực",
+    "Phan Trọng Hữu",
+    "Bùi Văn Sinh",
+    "Mai Hiển Tú",
+    "Nguyễn Chí Phú",
+    "Trần Thanh Quyền",
+    "Đoàn Tấn Phước",
+    "Nguyễn Trần Thái Duy",
+    "Quách Văn Cương",
+    "Nguyễn Trọng Thế Anh",
+    "Phan Nhựt Cường",
+    "Lý Minh Trung",
+    "Hồ Đức Anh",
+    "Phạm Hoàng Khang",
+    "Lù Xuân Thái",
+    "Quách Văn Cương",
+    "Quan Chí Khánh An",
+    "Cao Tấn Tài",
+    "Nguyễn Thành Phước",
+    "Nông Tuấn Vũ",
+    "Trần Quang Thanh Hưng",
+    "Phạm Nhật Nam",
+    "Nguyễn Tấn Hải",
+    "Ngô Mạnh Cường",
+    "Danh Quốc Hào",
+    "Nông Tuấn Vũ",
+    "Phạm Hoàng Khang",
+    "Võ Tấn Toàn",
+    "Phan Hữu Trí",
+    "Hà Vũ Minh",
+    "Lê Thành Nam",
+    "Dương Nhật Kha",
+    "Đoàn Thanh Hiền",
+    "Vũ Văn Long",
+    "Phạm Minh Duy",
+    "Trịnh Việt Hoàng",
+    "Vũ Duy Hồng",
+    "Phạm Chí Linh",
+    "Nguyễn Đình Trí"
+];
+const femaleNames = [
+    "Dương Ngọc Diễm",
+    "Đặng Phương Anh",
+    "Trần Thị Hoài",
+    "Bùi Thị Phụng",
+    "Đỗ Thị Lý",
+    "Hàng Thị Tuyết Thời",
+    "Châu Trần Anh Thư",
+    "Nguyễn Thị Kim Bình",
+    "Trần Hồng Linh",
+    "Phùng Nữ Thanh Vân",
+    "Phạm Thị Cúc",
+    "Phùng Thị Ánh Ngọc",
+    "Võ Ngọc Chi",
+    "Lê Thanh Thơm",
+    "Nguyễn Ngọc Ly",
+    "Nguyễn Hương Giang",
+    "Phạm Thị Hoàng",
+    "Nguyễn Thị Kiều Diễm",
+    "Trần Thu Hương",
+    "Dương Ngọc Diễm",
+    "Nguyễn Thị Mỹ Huyền",
+    "Huỳnh Thị Bích Tuyền",
+    "Nguyễn Thị Xuân Thúy",
+    "Nguyễn Xuân Tiên",
+    "Phạm Thị Cúc",
+    "Danh Thị Kiều Thu",
+    "Võ Ngọc Chi",
+    "Trần Ngọc Ánh Tuyết",
+    "Nguyễn Thúy Đào",
+    "Huỳnh Mai Thảo Nguyên",
+    "Lại Xuân Quỳnh",
+    "Đoàn Thị Lệ Mỹ Tâm",
+    "Trần Thuỳ Dương",
+    "Đào Thị Thu Thảo",
+    "Võ Đức Thi",
+    "Dương Thị Tùng",
+    "Trần Thị Thuỷ",
+    "Trần Thị Bình",
+    "Đinh Thị Kim Thùy",
+    "Phạm Quỳnh Trang",
+    "Thái Thị Hồng Linh",
+    "Hồ Ngọc Thanh",
+    "Nguyễn Vũ Tú Anh",
+    "Tống Mỹ Linh",
+    "Trương Thùy Anh",
+    "Phạm Thị Thành Tâm",
+    "Thạch Thị Ngọc Nhi",
+    "Lê Thị Thùy Dương",
+    "Trần Trương Nhã Phương",
+    "Lại Thị Thúy",
+    "Nguyễn Ngọc Ly",
+    "Võ Thị Hải Yến",
+    "Nguyễn Minh Hằng",
+    "Bạch Thị Thu Huyền",
+    "Thạch Thị Ngọc Nhi",
+    "Trần Trương Nhã Phương",
+    "Nguyễn Thị Kim Cúc",
+    "Dương Nhật Chi",
+    "Lê Thị Hài Hòa",
+    "Lê Thị Việt Hà",
+    "Trần Thị Thanh Thương",
+    "Nguyễn Hồng Nhung",
+    "Mai Thị Thúy Hành"
+];
+const birthDates = [
+    "05-01-2004", "12-02-2004", "23-03-2004", "15-04-2004", "09-05-2004",
+    "18-06-2004", "25-07-2004", "30-08-2004", "11-09-2004", "21-10-2004",
+    "03-11-2004", "14-12-2004", "17-01-2004", "25-02-2004", "05-03-2004",
+    "08-04-2004", "19-05-2004", "06-06-2004", "12-07-2004", "28-08-2004",
+    "07-09-2004", "14-10-2004", "22-11-2004", "03-12-2004", "09-01-2004",
+    "28-02-2004", "16-03-2004", "27-04-2004", "30-05-2004", "11-06-2004",
+    "19-07-2004", "04-08-2004", "15-09-2004", "25-10-2004", "09-11-2004",
+    "19-12-2004", "26-01-2004", "14-02-2004", "20-03-2004", "06-04-2004",
+    "13-05-2004", "23-06-2004", "31-07-2004", "16-08-2004", "23-09-2004",
+    "02-10-2004", "13-11-2004", "27-12-2004", "03-01-2004", "18-02-2004",
+    "28-03-2004", "19-04-2004", "08-05-2004", "14-06-2004", "22-07-2004",
+    "05-08-2004", "18-09-2004", "29-10-2004", "17-11-2004", "06-12-2004",
+    "11-01-2004", "22-02-2004", "09-03-2004", "30-04-2004", "21-05-2004",
+    "12-06-2004", "29-07-2004", "11-08-2004", "26-09-2004", "18-10-2004",
+    "25-11-2004", "15-12-2004", "22-01-2004", "10-02-2004", "18-03-2004",
+    "07-04-2004", "24-05-2004", "10-06-2004", "03-07-2004", "24-08-2004",
+    "02-09-2004", "13-10-2004", "29-11-2004", "13-12-2004", "29-01-2004",
+    "19-02-2004", "13-03-2004", "22-04-2004", "17-05-2004", "02-06-2004",
+    "15-07-2004", "09-08-2004", "20-09-2004", "01-10-2004", "13-11-2004",
+    "27-12-2004", "03-01-2004", "18-02-2004", "28-03-2004", "19-04-2004",
+    "08-05-2004", "14-06-2004", "22-07-2004", "05-08-2004", "18-09-2004",
+    "29-10-2004", "17-11-2004", "06-12-2004", "11-01-2004", "22-02-2004",
+    "09-03-2004", "30-04-2004", "21-05-2004", "12-06-2004", "29-07-2004",
+    "11-08-2004", "26-09-2004", "18-10-2004", "25-11-2004", "15-12-2004",
+    "22-01-2004", "10-02-2004", "18-03-2004", "07-04-2004", "24-05-2004"
+];
+
+interface Student {
+    id: string;
+    name: string;
+    email?: string;
+    faculty: string;
+    birth: string;
+    gender?: 'male' | 'female' | 'other';
+    phoneNumber?: string;
+    address?: string;
+    enrolledClasses?: string[];
+}
+
 
 
 

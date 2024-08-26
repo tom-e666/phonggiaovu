@@ -100,7 +100,7 @@ export default function ExampleEligibilityCheck() {
                 textAlign:'center',
             }}>
                 <Title level={2} style={{marginBottom:'24px',color:'#1677ff'}}>Please login before accessing content</Title>
-                <Link href="/dashboard" passHref>
+                <Link href="/login" passHref>
                     <Button type="primary" size="large">Login</Button>
                 </Link>
             </div>

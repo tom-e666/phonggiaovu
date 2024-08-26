@@ -1,5 +1,6 @@
 'use client';
-import React, {useEffect, useState} from "react";
+
+import React, { useEffect, useState } from "react";
 import {
     Button,
     Checkbox,
@@ -10,13 +11,12 @@ import {
     message,
     Popconfirm,
     Spin,
-    Table,
-    TableProps,
+    Table, TableProps,
     Typography
 } from "antd";
-import {collection, doc, getDocs, setDoc, writeBatch} from "@firebase/firestore";
-import {db} from "@/firebase/initFirebase";
-import {Moment} from 'moment';
+import { collection, doc, getDocs, setDoc, writeBatch } from "@firebase/firestore";
+import { db } from "@/firebase/initFirebase";
+import { Moment } from 'moment';
 
 interface CourseView {
     id: string;        // Course ID
@@ -33,7 +33,7 @@ interface ExamSchedule {
     invigilator2: string;
     invigilatorsId: string[];
     date: string;
-    session: number|null;
+    session: number | null;
     startTime?: string;
     endTime?: string;
 }
@@ -64,7 +64,7 @@ const EditableCell: React.FC<React.PropsWithChildren<EditableCellProps>> = ({
                 <Form.Item
                     name={dataIndex}
                     style={{ margin: 0 }}
-                    rules={[{ required: true, message: `Please Input ${title}!` }]}
+                    rules={[{ required: true, message: `Vui lòng nhập ${title}!` }]}
                 >
                     {inputNode}
                 </Form.Item>
@@ -74,15 +74,23 @@ const EditableCell: React.FC<React.PropsWithChildren<EditableCellProps>> = ({
         </td>
     );
 };
-const ExamScheduleTable = () => {
+
+interface ExamScheduleTableProps {
+    take: 'take1' | 'take2';
+}
+
+const ExamScheduleTable: React.FC<ExamScheduleTableProps> = ({ take }) => {
     const [form] = Form.useForm();
     const [data, setData] = useState<ExamSchedule[]>([]);
     const [editingID, setEditingID] = useState<string | null>(null);
     const [lockedRows, setLockedRows] = useState<string[]>([]);
     const [loading, setLoading] = useState(true);
     const [courses, setCourses] = useState<CourseView[]>([]);
-    const[hasUnsavedChanges, setHasUnsavedChanges] = useState<boolean>(false);
+    const [hasUnsavedChanges, setHasUnsavedChanges] = useState<boolean>(false);
     const [startDate, setStartDate] = useState<Moment>();
+
+    const collectionName = `examSchedule_2024_${take}`;
+
     async function handleSuggestSchedule() {
         if (!startDate) {
             message.error("Vui lòng chọn ngày bắt đầu trước khi đề xuất lịch!");
@@ -126,17 +134,15 @@ const ExamScheduleTable = () => {
                 roomIndex++;
 
                 if (roomIndex >= rooms.length || remainingStudents <= 0) {
-                    // Reset room index nếu đã dùng hết phòng hoặc đủ sinh viên
                     roomIndex = 0;
-                    // Chuyển sang ca tiếp theo cho môn khác
                     currentSession++;
                     if (currentSession > sessionsPerDay) {
                         currentSession = 1;
                         currentDate = currentDate.add(1, 'day');
-                        if(currentDate.day() === 0) {
-                            currentDate = currentDate.add(1, 'day'); // Chuyển sang ngày Thứ Hai)
+                        if (currentDate.day() === 0) {
+                            currentDate = currentDate.add(1, 'day'); // Chuyển sang ngày Thứ Hai
                         }
-                }
+                    }
                 }
             }
         });
@@ -146,17 +152,13 @@ const ExamScheduleTable = () => {
         message.success("Lịch thi đã được đề xuất thành công!");
     }
 
-
     async function handleSuggestInvigilator() {
         try {
             const lecturersSnapshot = await getDocs(collection(db, "lecturers"));
-            const lecturers = lecturersSnapshot.docs.map(doc => {
-                const data = doc.data();
-                return {
-                    id: data.id,
-                    name: data.name,
-                };
-            });
+            const lecturers = lecturersSnapshot.docs.map(doc => ({
+                id: doc.data().id,
+                name: doc.data().name,
+            }));
 
             const usedLecturersBySession: { [key: string]: Set<string> } = {};
 
@@ -178,7 +180,6 @@ const ExamScheduleTable = () => {
                     }
                 }
 
-                // Find invigilator2
                 for (let i = 0; i < lecturers.length; i++) {
                     if (
                         !usedLecturersBySession[sessionKey].has(lecturers[i].id) &&
@@ -197,6 +198,7 @@ const ExamScheduleTable = () => {
                     invigilatorsId: [invigilator1?.id || '', invigilator2?.id || ''],
                 };
             });
+
             setData(updatedSchedules);
             setHasUnsavedChanges(true);
             message.success("Giám thị đã được phân bổ thành công!");
@@ -207,32 +209,32 @@ const ExamScheduleTable = () => {
         }
     }
 
-        async function createSchedule() {
-            try {
-                for (const schedule of data) {
-                    const scheduleDocRef = doc(collection(db, 'examSchedules'), schedule.id);
-                    await setDoc(scheduleDocRef, schedule);
-                }
-                setHasUnsavedChanges(false); // Changes have been saved
-                alert("Lịch thi đã được lưu thành công!");
-            } catch (error) {
-                console.error("Failed to save schedule:", error);
-            }
-    }
-    async function deleteSchedule() {
-
+    async function createSchedule() {
         try {
-            const schedulesSnapshot = await getDocs(collection(db, "examSchedules"));
+            for (const schedule of data) {
+                const scheduleDocRef = doc(collection(db, collectionName), schedule.id);
+                await setDoc(scheduleDocRef, schedule);
+            }
+            setHasUnsavedChanges(false);
+            alert("Lịch thi đã được lưu thành công!");
+        } catch (error) {
+            console.error("Failed to save schedule:", error);
+        }
+    }
+
+    async function deleteSchedule() {
+        try {
+            const schedulesSnapshot = await getDocs(collection(db, collectionName));
 
             if (schedulesSnapshot.empty) {
                 message.error("Không có bản ghi nào để xóa");
                 return;
             }
-            const batch = writeBatch(db); // Use writeBatch to create a batch
 
+            const batch = writeBatch(db);
             schedulesSnapshot.docs.forEach(scheduleDoc => {
-                const scheduleRef = doc(db, "examSchedules", scheduleDoc.id);
-                batch.delete(scheduleRef); // Add delete operation to the batch
+                const scheduleRef = doc(db, collectionName, scheduleDoc.id);
+                batch.delete(scheduleRef);
             });
 
             await batch.commit();
@@ -242,6 +244,7 @@ const ExamScheduleTable = () => {
             console.error("Failed to delete all schedules:", error);
         }
     }
+
     function reloadSchedule() {
         const initialExamSchedules = courses.map(course => ({
             id: course.id,
@@ -252,12 +255,47 @@ const ExamScheduleTable = () => {
             invigilator2: '',
             invigilatorsId: ['', ''],
             date: '',
-            session:null,
+            session: null,
         }));
         setData(initialExamSchedules);
         setEditingID(null);
         setLockedRows([]);
     }
+
+    async function fetchSchedule() {
+        try {
+            const schedulesSnapshot = await getDocs(collection(db, collectionName));
+
+            if (schedulesSnapshot.empty) {
+                message.warning("Chưa từng có danh sách nào!");
+                return;
+            }
+
+            const fetchedSchedules = schedulesSnapshot.docs.map(doc => {
+                const data = doc.data();
+                return {
+                    id: data.id,
+                    courseId: data.courseId,
+                    courseName: data.courseName,
+                    location: data.location,
+                    invigilator1: data.invigilator1,
+                    invigilator2: data.invigilator2,
+                    invigilatorsId: data.invigilatorsId,
+                    date: data.date,
+                    session: data.session,
+                    startTime: data.startTime || '',
+                    endTime: data.endTime || '',
+                };
+            });
+
+            setData(fetchedSchedules);
+            message.success("Danh sách đã được tải thành công!");
+        } catch (error) {
+            console.error("Failed to fetch exam schedules:", error);
+            message.error("Không thể tải danh sách");
+        }
+    }
+
     const isEditing = (record: ExamSchedule) => record.id === editingID;
 
     const edit = (record: Partial<ExamSchedule> & { id: React.Key }) => {
@@ -389,7 +427,6 @@ const ExamScheduleTable = () => {
             width: '7%',
 
             render: (_: any, record: ExamSchedule) => (
-
                 <Checkbox
                     checked={lockedRows.includes(record.id)}
                     onChange={(e) => handleLock(record.id, e.target.checked)}
@@ -443,53 +480,61 @@ const ExamScheduleTable = () => {
 
     return (
         <>
-            <div>Chọn ngày bắt đầu:
+            <div style={{ marginBottom: '16px' }}>
+                <Form form={form} component={false}>
+                    <Table
+                        components={{
+                            body: {
+                                cell: EditableCell,
+                            },
+                        }}
+                        bordered
+                        dataSource={data}
+                        columns={mergedColumns}
+                        rowClassName="editable-row"
+                        pagination={{
+                            pageSize: 3,
+                            onChange:  cancel }}
+                        scroll={{ y: 'calc(100vh - 300px)', x: '1000px' }}
+                        rowKey="id"
+                    />
+                </Form>
+            </div>
+
+            <div style={{ marginBottom: '16px' }}>
+                <Typography.Text strong>Chọn ngày bắt đầu:</Typography.Text>
                 <DatePicker
-                    onChange={(date:Moment,dateString)=>{
+                    onChange={(date: Moment, dateString) => {
                         setStartDate(date);
                     }}
                     format="DD/MM/YYYY"
+                    style={{ marginLeft: '8px' }}
                 />
             </div>
 
-            <Form form={form} component={false}>
-                <Table
-                    components={{
-                        body: {
-                            cell: EditableCell,
-                        },
-                    }}
-                    bordered
-                    dataSource={data}
-                    columns={mergedColumns}
-                    rowClassName="editable-row"
-                    pagination={{onChange: cancel}}
-                    scroll={{y: 'calc(100vh - 300px)'}}
-                    rowKey="id"
-                />
-            </Form>
-            <div style={{marginTop: '16px'}}>
-                <div style={{display: 'flex'}}>
-                    <div>
-                        <Button type="primary" style={{marginRight: '8px'}} onClick={handleSuggestSchedule}>
-                            Đề xuất Lịch
-                        </Button>
-                        <Button type="primary" style={{marginRight: '8px'}} onClick={handleSuggestInvigilator}>
-                            Đề xuất giám thị
-                        </Button>
-                    </div>
-                    <div>
-                        <Button type="primary" style={{marginRight: '8px'}} onClick={createSchedule}
-                                disabled={!hasUnsavedChanges}>
-                            Cập nhật
-                        </Button>
-                        <Button type="primary" style={{marginRight: '8px'}} onClick={deleteSchedule}>
-                            Xóa
-                        </Button>
-                        <Button type="default" onClick={reloadSchedule}>
-                            Tải lại
-                        </Button>
-                    </div>
+            <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '16px' }}>
+                <div>
+                    <Button type="primary" style={{ marginRight: '8px' }} onClick={handleSuggestSchedule}>
+                        Đề xuất Lịch
+                    </Button>
+                    <Button type="primary" style={{ marginRight: '8px' }} onClick={handleSuggestInvigilator}>
+                        Đề xuất Giám Thị
+                    </Button>
+                </div>
+                <div>
+                    <Button type="primary" style={{ marginRight: '8px' }} onClick={createSchedule}
+                            disabled={!hasUnsavedChanges}>
+                        Cập nhật
+                    </Button>
+                    <Button type="dashed" style={{ marginRight: '8px' }} onClick={deleteSchedule}>
+                        Xóa
+                    </Button>
+                    <Button type="default" style={{ marginRight: '8px' }} onClick={reloadSchedule}>
+                        Tải lại
+                    </Button>
+                    <Button type="default" onClick={fetchSchedule}>
+                        Lịch sử
+                    </Button>
                 </div>
             </div>
         </>

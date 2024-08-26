@@ -7,14 +7,18 @@ import {useAuth} from "@/firebase/initFirebase";
 import Link from "next/link";
 const {Title} = Typography;
 
-interface Student{
-    id:string,
-    name:string,
-    age: number,
-    classes:string[],
+interface Student {
+    id: string;
+    name: string;
+    email: string;
+    birth: string;
+    gender?: 'male' | 'female';
+    phoneNumber?: string;
+    address?: string;
+    classes?: string[];
 }
 
-const mockStudent:Student[]=[]
+const mockStudent:Student[]=[];
 for(let i=1;i<100;++i)
 {
     mockStudent.push({

@@ -1,6 +1,11 @@
 import {collection, getDocs} from "@firebase/firestore";
 import {db} from "@/firebase/initFirebase";
-
+interface StudentClass {
+    id: string;
+    name: string;
+    take1: number | null; // Score for the first attempt
+    take2: number | null; // Score for the second attempt
+}
 export interface Class  {
     id: string;
     code: string;
@@ -14,6 +19,7 @@ export interface Class  {
     description?: string;
     prerequisites?: string;
     capacity?: number;
+    students?:StudentClass[];
 }
 
 export const retrieveClasses = async (): Promise<Class[]> => {

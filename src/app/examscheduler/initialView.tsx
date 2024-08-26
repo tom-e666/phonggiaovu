@@ -18,28 +18,36 @@ const CoursesTable: React.FC = () => {
     useEffect(() => {
         const fetchCourses = async () => {
             try {
+                const savedCourses = localStorage.getItem('courses');
+                if (savedCourses) {
+                    setCourses(JSON.parse(savedCourses));
+                    setLoading(false);
+                    return;
+                }
+
                 const classesSnapshot = await getDocs(collection(db, "classes"));
 
                 const courseMap = new Map<string, CourseView>();
 
                 classesSnapshot.docs.forEach(doc => {
                     const data = doc.data();
-                    const key = data.code ;
+                    const key = data.code;
 
                     if (courseMap.has(key)) {
                         const existingCourse = courseMap.get(key)!;
                         existingCourse.studentCount += data.capacity || 30;
                     } else {
-
                         courseMap.set(key, {
-                            id: data.code ,
+                            id: data.code,
                             name: data.name || '',
                             studentCount: data.capacity || 0,
                         });
                     }
                 });
 
-                setCourses(Array.from(courseMap.values()));
+                const fetchedCourses = Array.from(courseMap.values());
+                setCourses(fetchedCourses);
+                localStorage.setItem('courses', JSON.stringify(fetchedCourses));
                 setLoading(false);
             } catch (error) {
                 console.error("Failed to fetch courses", error);
@@ -48,6 +56,7 @@ const CoursesTable: React.FC = () => {
         };
         fetchCourses();
     }, []);
+
 
     // Define the table columns
     const columns = [
@@ -70,6 +79,7 @@ const CoursesTable: React.FC = () => {
             width: '20%',
         },
     ];
+
     return loading ? (
         <Spin size="large" />
     ) : (

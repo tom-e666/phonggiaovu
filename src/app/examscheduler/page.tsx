@@ -65,17 +65,35 @@ const EditableCell: React.FC<React.PropsWithChildren<EditableCellProps>> = ({
         </td>
     )
 };
-
 function Page() {
     const [gridContent, setGridContent] = useState(0);
+
+    const getCurrentViewLabel = () => {
+        switch (gridContent) {
+            case 0:
+                return "Danh sách môn học";
+            case 1:
+                return "Lịch thi lần 1";
+            case 2:
+                return "Lịch thi lần 2";
+            default:
+                return "Lỗi";
+        }
+    };
+
     return (
-    <>
-    <Button type="primary" onClick={()=>{setGridContent((gridContent+1)%3)}}>Chuyển view</Button>
-        {gridContent === 0 && (<CoursesTable></CoursesTable>)}
-        {gridContent === 1 && (<div><ExamScheduleTable/></div>)}
-        {gridContent === 2 && (<div><ExamScheduleTable/></div>)}
-    </>
-    )
+        <>
+            <Button type="primary" onClick={() => { setGridContent((gridContent + 1) % 3); }}>
+                Chuyển view
+            </Button>
+            <div style={{ margin: "16px 0", fontWeight: "bold" }}>
+                {getCurrentViewLabel()}
+            </div>
+            {gridContent === 0 && (<CoursesTable />)}
+            {gridContent === 1 && (<div><ExamScheduleTable take={'take1'} /></div>)}
+            {gridContent === 2 && (<div><ExamScheduleTable take={'take2'} /></div>)}
+        </>
+    );
 }
 
 export default Page;
