@@ -168,6 +168,9 @@ const ExamScoreEntry: React.FC = () => {
                         step={0.1}
                         value={record.take1}
                         onChange={(value) => {
+                            if(value===null){
+                                return;
+                            }
                             if (value !== undefined && (value < 0 || value > 10)) {
                                 message.error('Điểm phải nằm trong khoảng 0 đến 10.');
                                 return;
@@ -195,6 +198,9 @@ const ExamScoreEntry: React.FC = () => {
                         step={0.1}
                         value={record.take1}
                         onChange={(value) => {
+                            if(value===null){
+                                return;
+                            }
                             if (value !== undefined && (value < 0 || value > 10)) {
                                 message.error('Điểm phải nằm trong khoảng 0 đến 10.');
                                 return;
@@ -248,7 +254,7 @@ const ExamScoreEntry: React.FC = () => {
 
     return (
         <div>
-            <Typography.Title level={4}>Nhập Điểm Kỳ Thi</Typography.Title>
+            <Typography.Title level={2}>Nhập Điểm Kỳ Thi</Typography.Title>
             {loading ? (
                 <Spin size="large" />
             ) : (

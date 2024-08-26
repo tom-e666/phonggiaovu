@@ -1,4 +1,4 @@
-'use client'
+'use client';
 import React, { useState } from 'react';
 import {
     MenuFoldOutlined, MenuUnfoldOutlined,
@@ -9,13 +9,12 @@ import {
     LoginOutlined, FileSearchOutlined
 } from '@ant-design/icons';
 import {Button, Layout, Menu, theme, Image} from 'antd';
-import {Content, Header} from "antd/es/layout/layout";
-import Link from "next/link";
 import {AuthProvider} from "@/firebase/initFirebase";
+import Link from "next/link";
 
-const {Sider} = Layout;
+const { Header, Sider, Content } = Layout;
 
-const MenuItem = [
+const menuItems = [
     {
         key: '1',
         icon: <HomeOutlined />,
@@ -112,7 +111,7 @@ interface CustomLayoutProps {
     children: React.ReactNode;
 }
 
-const CustomLayout: React.FC<CustomLayoutProps> = ({children}) => {
+const CustomLayout: React.FC<CustomLayoutProps> = ({ children }) => {
     const [collapsed, setCollapsed] = useState(false);
     const {
         token: { colorBgContainer, borderRadiusLG },
@@ -120,14 +119,14 @@ const CustomLayout: React.FC<CustomLayoutProps> = ({children}) => {
 
     return (
         <AuthProvider>
-            <Layout>
-                <Sider collapsible collapsed={collapsed}>
+            <Layout style={{ height: '100vh' }}>
+                <Sider collapsible collapsed={collapsed} onCollapse={setCollapsed}>
                     <div className="demo-logo-vertical" />
                     <Menu
                         theme="dark"
                         mode="inline"
                         defaultSelectedKeys={["1"]}
-                        items={MenuItem}
+                        items={menuItems}
                     />
                 </Sider>
                 <Layout>
@@ -142,31 +141,30 @@ const CustomLayout: React.FC<CustomLayoutProps> = ({children}) => {
                             <div
                                 style={{
                                     position: 'relative',
-                                    flexGrow: 1, // Make the div take all remaining space
+                                    flexGrow: 1,
                                     display: 'flex',
                                     alignItems: 'center',
                                     justifyContent: 'center',
-                                    height: '64px', // Ensure the height matches the button for alignment
+                                    height: '64px',
                                 }}
                             >
-                                <Image width="500px" src="topLogo.png" />
+                                <Image width="500px" src="topLogo.png" alt="" />
                             </div>
                         </div>
                     </Header>
-                    <Layout.Content
+                    <Content
                         style={{
                             padding: 24,
                             margin: '24px 16px',
                             background: colorBgContainer,
                             borderRadius: borderRadiusLG,
-                            // height: '100vh',
-                            //minHeight:'100vh',
-                            overflow:'hidden',
+                            height: '100vh',
+                            overflow:"auto",
                             flexGrow: 1,
                         }}
                     >
                         {children}
-                    </Layout.Content>
+                    </Content>
                 </Layout>
             </Layout>
         </AuthProvider>
